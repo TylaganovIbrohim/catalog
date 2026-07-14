@@ -1,36 +1,14 @@
 const express = require("express");
-const axios = require("axios");
+const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Подключаем папку public как статическую
-app.use(express.static("public"));
+// Подключаем папку public для статики
+app.use(express.static(path.join(__dirname, "public")));
 
-// Корневой маршрут будет отдавать index.html
+// Отдаём index.html при заходе на /
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
-
-app.listen(PORT, () => {
-  console.log(`Сервер слушает порт ${PORT}`);
-});
-
-app.get("/", (req, res) => {
-  res.send("Сервер работает 🚀");
-});
-
-app.get("/products", async (req, res) => {
-  try {
-    const response = await axios.get("https://online.moysklad.ru/api/remap/1.2/entity/product", {
-      headers: {
-        Authorization: `Bearer ${process.env.MOYSKLAD_TOKEN}`
-      }
-    });
-    res.json(response.data);
-  } catch (err) {
-    console.error("Ошибка API:", err.message);
-    res.status(500).send("Ошибка получения данных");
-  }
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.listen(PORT, () => {
