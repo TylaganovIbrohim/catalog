@@ -46,6 +46,7 @@ function renderProduct(doc) {
     <img src="${doc.data().image}" alt="${doc.data().name}">
     <h3>${doc.data().name}</h3>
     <p>${doc.data().price} ₽</p>
+    <h2>${doc.data().id}<h2>
   `;
   
   productsContainer.appendChild(productDiv);
