@@ -3,53 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Каталог товаров</title>
+  <title>Лидер</title>
 
-  <!-- Подключение манифеста -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Стили -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-  <h1>Каталог товаров</h1>
+  <h1>Лидер</h1>
   <div id="products"></div>
 
   <script>
-    // Конфигурация Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsrcT84CP6nZq8YG2KWfcu6TCtQpQoNm0",
-    authDomain: "catalog-app-1014f.firebaseapp.com",
-    projectId: "catalog-app-1014f",
-    storageBucket: "catalog-app-1014f.firebasestorage.app",
-    messagingSenderId: "1047135603204",
-    appId: "1:1047135603204:web:6c7ceeaed34f73154ac351",
-    measurementId: "G-0LQQQ1TBYP"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsrcT84CP6nZq8YG2KWfcu6TCtQpQoNm0",
+      authDomain: "catalog-app-1014f.firebaseapp.com",
+      projectId: "catalog-app-1014f",
+      storageBucket: "catalog-app-1014f.firebasestorage.app",
+      messagingSenderId: "1047135603204",
+      appId: "1:1047135603204:web:6c7ceeaed34f73154ac351",
+      measurementId: "G-0LQQQ1TBYP"
+    };
 
-    // Инициализация Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Контейнер для товаров
     const productsContainer = document.getElementById("products");
 
     function renderProduct(doc) {
+      const data = doc.data();
       const productDiv = document.createElement("div");
       productDiv.classList.add("product");
+
       productDiv.innerHTML = `
-        <img src="${doc.data().image}" alt="${doc.data().name}">
-        <h3>${doc.data().name}</h3>
-        <p>${doc.data().price} ₽</p>
+        <img src="${data.image}" alt="${data.name}">
+        <h3>${data.name}</h3>
+        <div class="buttons">
+          <button>${data.price} ₽</button>
+          <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
+        </div>
       `;
+
       productsContainer.appendChild(productDiv);
     }
 
-    // Реальное время: слушаем изменения в базе
     db.collection("products").onSnapshot(snapshot => {
       productsContainer.innerHTML = "";
       snapshot.forEach(doc => {
@@ -57,7 +55,15 @@
       });
     });
 
-    // Регистрация Service Worker
+    function copyId(id) {
+      navigator.clipboard.writeText(id);
+      const btn = document.getElementById("btn-" + id);
+      if (btn) {
+        btn.classList.add("green");
+        setTimeout(() => btn.classList.remove("green"), 1000);
+      }
+    }
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js")
         .then(() => console.log("Service Worker зарегистрирован"))
