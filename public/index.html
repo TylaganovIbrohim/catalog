@@ -2,11 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-<<<<<<< HEAD
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-=======
-  <meta name="viewport" content="width=device-width"> <!-- обычный режим -->
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
+  <meta name="viewport" content="width=device-width">
   <title>Лидер</title>
 
   <link rel="manifest" href="manifest.json">
@@ -17,7 +13,59 @@
 </head>
 <body>
   <h1>Лидер</h1>
-  <div id="products"></div>
+
+  <!-- Кнопка "О нас" -->
+  <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
+
+  <!-- Кнопка "Меню" -->
+  <button id="menuBtn" onclick="toggleMenu()">☰</button>
+
+  <!-- Блок информации -->
+  <div id="aboutInfo">
+    <h3>О нас</h3>
+    <p>Местоположение: Ташкент, Узбекистан</p>
+    <p>+998 90 123 45 67</p>
+    <p>+998 91 765 43 21</p>
+  </div>
+
+  <!-- Боковое меню -->
+  <div id="sideMenu">
+    <h3>Категории</h3>
+    <ul>
+      <li onclick="goToCategory('men_underwear')">Трусы мужские</li>
+      <li onclick="goToCategory('men_tshirt')">Майки мужские</li>
+      <li onclick="goToCategory('men_pajamas')">Пижамы мужские</li>
+      <li onclick="goToCategory('men_shirts')">Футболки мужские</li>
+      <li onclick="goToCategory('men_long_sleeve')">Футболки с длинным рукавом</li>
+      <li onclick="goToCategory('women_underwear')">Трусы женские</li>
+      <li onclick="goToCategory('women_tshirt')">Майки женские</li>
+      <li onclick="goToCategory('women_sarochka')">Сарочка</li>
+      <li onclick="goToCategory('women_pajamas')">Пижама женские</li>
+      <li onclick="goToCategory('women_robes')">Халаты</li>
+      <li onclick="goToCategory('women_shirts')">Футболки женские</li>
+      <li onclick="goToCategory('women_dresses')">Туника и платья</li>
+      <li onclick="goToCategory('women_set')">Двойка женская</li>
+    </ul>
+    <button class="back-btn" onclick="toggleMenu()">Закрыть меню</button>
+  </div>
+
+  <!-- Главные категории -->
+  <div id="mainCatalog" class="catalog">
+    <div class="card" onclick="showSubCatalog('men')">
+      <img src="images/men.jpg" alt="Мужское">
+      <h3>Мужское</h3>
+    </div>
+    <div class="card" onclick="showSubCatalog('women')">
+      <img src="images/women.jpg" alt="Женское">
+      <h3>Женское</h3>
+    </div>
+  </div>
+
+  <!-- Подкаталоги -->
+  <div id="subCatalog" class="catalog" style="display:none;"></div>
+
+  <!-- Контейнер для товаров -->
+  <div id="products" class="catalog" style="display:none;"></div>
 
   <script>
     const firebaseConfig = {
@@ -34,30 +82,117 @@
     const db = firebase.firestore();
 
     const productsContainer = document.getElementById("products");
+    const mainCatalog = document.getElementById("mainCatalog");
+    const subCatalog = document.getElementById("subCatalog");
+    const aboutInfo = document.getElementById("aboutInfo");
+    const sideMenu = document.getElementById("sideMenu");
+
+    function toggleAbout() {
+      if (aboutInfo.classList.contains("show")) {
+        aboutInfo.classList.remove("show");
+      } else {
+        aboutInfo.classList.add("show");
+      }
+    }
+
+    function toggleMenu() {
+      if (sideMenu.classList.contains("show")) {
+        sideMenu.classList.remove("show");
+      } else {
+        sideMenu.classList.add("show");
+      }
+    }
+
+    function goToCategory(categoryId) {
+      sideMenu.classList.remove("show"); // закрываем меню
+      openCategory(categoryId);          // открываем категорию
+    }
+
+    function showSubCatalog(type) {
+      mainCatalog.style.display = "none";
+      subCatalog.style.display = "flex";
+      subCatalog.innerHTML = "";
+
+      let categories = [];
+      if (type === "men") {
+        categories = [
+          {name: "Трусы мужские", id: "men_underwear", img: "images/men_underwear.jpg"},
+          {name: "Майки мужские", id: "men_tshirt", img: "images/men_tshirt.jpg"},
+          {name: "Пижамы мужские", id: "men_pajamas", img: "images/men_pajamas.jpg"},
+          {name: "Футболки мужские", id: "men_shirts", img: "images/men_shirts.jpg"},
+          {name: "Футболки с длинным рукавом", id: "men_long_sleeve", img: "images/men_long_sleeve.jpg"}
+        ];
+      } else {
+        categories = [
+          {name: "Трусы женские", id: "women_underwear", img: "images/women_underwear.jpg"},
+          {name: "Майки женские", id: "women_tshirt", img: "images/women_tshirt.jpg"},
+          {name: "Сарочка", id: "women_sarochka", img: "images/women_sarochka.jpg"},
+          {name: "Пижама женские", id: "women_pajamas", img: "images/women_pajamas.jpg"},
+          {name: "Халаты", id: "women_robes", img: "images/women_robes.jpg"},
+          {name: "Футболки женские", id: "women_shirts", img: "images/women_shirts.jpg"},
+          {name: "Туника и платья", id: "women_dresses", img: "images/women_dresses.jpg"},
+          {name: "Двойка женская", id: "women_set", img: "images/women_set.jpg"}
+        ];
+      }
+
+      categories.forEach(cat => {
+        const div = document.createElement("div");
+        div.classList.add("card");
+        div.innerHTML = `
+          <img src="${cat.img}" alt="${cat.name}">
+          <h3>${cat.name}</h3>
+        `;
+        div.onclick = () => openCategory(cat.id);
+        subCatalog.appendChild(div);
+      });
+
+      const backBtn = document.createElement("button");
+      backBtn.textContent = "← Назад";
+      backBtn.classList.add("back-btn");
+      backBtn.onclick = () => {
+        subCatalog.style.display = "none";
+        mainCatalog.style.display = "flex";
+      };
+      subCatalog.appendChild(backBtn);
+    }
+
+    async function openCategory(categoryId) {
+      subCatalog.style.display = "none";
+      productsContainer.style.display = "flex";
+      productsContainer.innerHTML = "";
+
+      const snapshot = await db.collection("products").where("id-name", "==", categoryId).get();
+      snapshot.forEach(doc => {
+        renderProduct(doc);
+      });
+
+      const backBtn = document.createElement("button");
+      backBtn.textContent = "← Назад к подкатегориям";
+      backBtn.classList.add("back-btn");
+      backBtn.onclick = () => {
+        productsContainer.style.display = "none";
+        subCatalog.style.display = "flex";
+      };
+      productsContainer.appendChild(backBtn);
+    }
 
     function renderProduct(doc) {
       const data = doc.data();
       const productDiv = document.createElement("div");
-      productDiv.classList.add("product");
+      productDiv.classList.add("card");
 
       productDiv.innerHTML = `
         <img src="${data.image}" alt="${data.name}">
         <h3>${data.name}</h3>
+        <p>Размер: ${data.size}</p>
         <div class="buttons">
-          <button>${data.price} ₽</button>
+          <button>$${data.price}</button>
           <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
         </div>
       `;
 
       productsContainer.appendChild(productDiv);
     }
-
-    db.collection("products").onSnapshot(snapshot => {
-      productsContainer.innerHTML = "";
-      snapshot.forEach(doc => {
-        renderProduct(doc);
-      });
-    });
 
     function copyId(id) {
       navigator.clipboard.writeText(id);
@@ -66,12 +201,6 @@
         btn.classList.add("green");
         setTimeout(() => btn.classList.remove("green"), 1000);
       }
-    }
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js")
-        .then(() => console.log("Service Worker зарегистрирован"))
-        .catch(err => console.error("Ошибка SW:", err));
     }
   </script>
 </body>

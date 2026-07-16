@@ -1,17 +1,6 @@
-// Import the functions you need from the SDKs you need
-
 import { initializeApp } from "firebase/app";
 
 import { getAnalytics } from "firebase/analytics";
-
-// TODO: Add SDKs for Firebase products that you want to use
-
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-
-// Your web app's Firebase configuration
-
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const firebaseConfig = {
   apiKey: "AIzaSyAsrcT84CP6nZq8YG2KWfcu6TCtQpQoNm0",
@@ -23,19 +12,13 @@ const firebaseConfig = {
   measurementId: "G-0LQQQ1TBYP"
 };
 
-
-// Initialize Firebase
-
 const app = initializeApp(firebaseConfig);
 
 const analytics = getAnalytics(app);
 
-
-// Инициализация Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Загрузка товаров
 const productsContainer = document.getElementById("products");
 
 function renderProduct(doc) {
@@ -52,14 +35,12 @@ function renderProduct(doc) {
   productsContainer.appendChild(productDiv);
 }
 
-// Реальное время: слушаем изменения в базе
 db.collection("products").onSnapshot(snapshot => {
   productsContainer.innerHTML = "";
   snapshot.forEach(doc => {
     renderProduct(doc);
   });
 });
-// Регистрация service worker
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js")
     .then(() => console.log("Service Worker зарегистрирован"))

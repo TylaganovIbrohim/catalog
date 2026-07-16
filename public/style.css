@@ -1,68 +1,63 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #000; /* фон черный */
+  background: #000000; /* фон сайта полностью черный */
   color: #fff;
 }
 
 h1 {
   text-align: center;
-<<<<<<< HEAD
-  color: orange; /* название Лидер оранжевым */
-=======
-  color: orange; /* заголовок Лидер оранжевым */
+  color: orange;
   font-size: 28px;
   margin: 20px 0;
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
 }
 
-#products {
+.catalog {
   display: flex;
-<<<<<<< HEAD
   flex-wrap: wrap;
-=======
-  flex-wrap: wrap; /* карточки идут в ряд */
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
   gap: 20px;
   justify-content: center;
   padding: 20px;
 }
 
-.product {
-  background: #111; /* карточка черная */
-<<<<<<< HEAD
-  border: 2px solid orange; /* оранжевые края */
-  border-radius: 10px;
-=======
-  border: 2px solid orange; /* оранжевая рамка */
+.card {
+  background: #111;
+  border: 2px solid orange;
   border-radius: 12px;
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
   padding: 15px;
-  width: 250px;
+  width: 220px;
   text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.5s forwards;
 }
 
-.product img {
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(255, 165, 0, 0.5);
+}
+
+.card img {
   max-width: 100%;
   border-radius: 8px;
 }
 
-.product h3 {
-  color: #fff; /* название белое */
+.card h3 {
+  color: #fff;
   margin: 10px 0;
-<<<<<<< HEAD
-=======
   font-size: 18px;
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
+}
+
+.card p {
+  color: #ccc;
+  margin: 5px 0;
 }
 
 .buttons {
   display: flex;
-<<<<<<< HEAD
   justify-content: space-between;
-=======
-  justify-content: space-between; /* кнопки рядом */
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
   margin-top: 10px;
 }
 
@@ -72,20 +67,145 @@ button {
   background: orange;
   border: none;
   padding: 10px;
-<<<<<<< HEAD
-  border-radius: 5px;
-  cursor: pointer;
-  color: #000;
-  font-weight: bold;
-=======
   border-radius: 8px;
   cursor: pointer;
   color: #000;
   font-weight: bold;
   font-size: 14px;
->>>>>>> 9b9a6c0 (Обновил дизайн: фон черный, заголовок Лидер, карточки с кнопками Price и ID)
 }
 
 button.green {
-  background: #4caf50 !important; /* зеленый при нажатии */
+  background: #4caf50 !important;
+}
+
+.back-btn {
+  width: 100%;
+  margin-top: 20px;
+  background: orange;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #000;
+  font-weight: bold;
+  opacity: 1;
+  animation: none;
+}
+
+/* Кнопка "Меню" */
+#menuBtn {
+  position: absolute;
+  top: 20px;
+  left: 20px; /* слева */
+  background: orange;
+  border: none;
+  padding: 13px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #000;
+  box-shadow: 0 0 10px rgba(255,165,0,0.6);
+  transition: 0.3s;
+}
+
+#menuBtn:hover {
+  background: #ffcc00;
+  transform: scale(1.05);
+}
+
+/* Боковое меню */
+#sideMenu {
+  position: fixed;
+  top: 0;
+  left: -300px; /* скрыто */
+  width: 250px;
+  height: 100%;
+  background: #111;
+  border-right: 2px solid orange;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(255,165,0,0.4);
+  transition: left 0.3s ease;
+  z-index: 2000;
+}
+
+#sideMenu.show {
+  left: 0; /* выезжает */
+}
+
+#sideMenu h3 {
+  color: orange;
+  margin-bottom: 15px;
+}
+
+#sideMenu ul {
+  list-style: none;
+  padding: 0;
+}
+
+#sideMenu ul li {
+  margin: 10px 0;
+  cursor: pointer;
+  color: #fff;
+  transition: 0.3s;
+}
+
+#sideMenu ul li:hover {
+  color: orange;
+}
+
+/* Кнопка "О нас" */
+#aboutBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: orange;
+  border: none;
+  padding: 13px 20px;
+  border-radius: 50%; /* круглая кнопка */
+  cursor: pointer;
+  font-weight: bold;
+  color: #000;
+  box-shadow: 0 0 10px rgba(255,165,0,0.6);
+  transition: 0.3s;
+}
+
+#aboutBtn:hover {
+  background: #ffcc00;
+  transform: scale(1.1);
+}
+
+/* Блок информации */
+#aboutInfo {
+  display: none;
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: #111;
+  border: 2px solid orange;
+  border-radius: 12px;
+  padding: 15px;
+  width: 250px;
+  color: #fff;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+#aboutInfo.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Анимация появления карточек */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
