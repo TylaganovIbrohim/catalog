@@ -12,64 +12,67 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-  <h1>Лидер</h1>
+  <!-- Логотип закреплён сверху -->
+  <img src="logo.png" alt="Логотип" id="siteLogo">
 
-  <!-- Кнопка "О нас" -->
-  <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
+  <!-- Основной контент ниже логотипа -->
+  <div id="mainContent">
+    <!-- Кнопка "О нас" -->
+    <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
 
-  <!-- Кнопка "Меню" -->
-  <button id="menuBtn" onclick="toggleMenu()">☰</button>
+    <!-- Кнопка "Меню" -->
+    <button id="menuBtn" onclick="toggleMenu()">☰</button>
 
-  <div id="aboutInfo">
-    <h3>О нас</h3>
-    <p><strong>Местоположение:</strong> ТЦ‑Москва, 2Е~94‑96</p>
-    
-    <!-- Telegram -->
-    <p>
-      <span style="font-size:18px;">💬</span> 
-      <a href="https://t.me/+ZoBQ86RG69U5MjRi" target="_blank" style="color:orange; text-decoration:none;">
-        Наш Telegram
-      </a>
-    </p>
-  </div>
-  <!-- Боковое меню -->
-  <div id="sideMenu">
-    <h3>Категории</h3>
-    <ul>
-      <li onclick="goToCategory('men_underwear')">Трусы мужские</li>
-      <li onclick="goToCategory('men_tshirt')">Майки мужские</li>
-      <li onclick="goToCategory('men_pajamas')">Пижамы мужские</li>
-      <li onclick="goToCategory('men_shirts')">Футболки мужские</li>
-      <li onclick="goToCategory('men_long_sleeve')">Футболки с длинным рукавом</li>
-      <li onclick="goToCategory('women_underwear')">Трусы женские</li>
-      <li onclick="goToCategory('women_tshirt')">Майки женские</li>
-      <li onclick="goToCategory('women_sarochka')">Сарочка</li>
-      <li onclick="goToCategory('women_pajamas')">Пижама женские</li>
-      <li onclick="goToCategory('women_robes')">Халаты</li>
-      <li onclick="goToCategory('women_shirts')">Футболки женские</li>
-      <li onclick="goToCategory('women_dresses')">Туника и платья</li>
-      <li onclick="goToCategory('women_set')">Двойка женская</li>
-    </ul>
-    <button class="back-btn" onclick="toggleMenu()">Закрыть меню</button>
-  </div>
-
-  <!-- Главные категории -->
-  <div id="mainCatalog" class="catalog">
-    <div class="card" onclick="showSubCatalog('men')">
-      <img src="images/men.jpg" alt="Мужское">
-      <h3>Мужское</h3>
+    <!-- Блок информации -->
+    <div id="aboutInfo">
+      <h3>О нас</h3>
+      <p><strong>Местоположение:</strong> ТЦ‑Москва, 2Е~94‑96</p>
+      <p>
+        💬 <a href="https://t.me/+ZoBQ86RG69U5MjRi" target="_blank" style="color:orange; text-decoration:none;">
+          Наш Telegram
+        </a>
+      </p>
     </div>
-    <div class="card" onclick="showSubCatalog('women')">
-      <img src="images/women.jpg" alt="Женское">
-      <h3>Женское</h3>
+
+    <!-- Боковое меню -->
+    <div id="sideMenu">
+      <h3>Категории</h3>
+      <ul>
+        <li onclick="goToCategory('men_underwear')">Трусы мужские</li>
+        <li onclick="goToCategory('men_tshirt')">Майки мужские</li>
+        <li onclick="goToCategory('men_pajamas')">Пижамы мужские</li>
+        <li onclick="goToCategory('men_shirts')">Футболки мужские</li>
+        <li onclick="goToCategory('men_long_sleeve')">Футболки с длинным рукавом</li>
+        <li onclick="goToCategory('women_underwear')">Трусы женские</li>
+        <li onclick="goToCategory('women_tshirt')">Майки женские</li>
+        <li onclick="goToCategory('women_sarochka')">Сарочка</li>
+        <li onclick="goToCategory('women_pajamas')">Пижама женские</li>
+        <li onclick="goToCategory('women_robes')">Халаты</li>
+        <li onclick="goToCategory('women_shirts')">Футболки женские</li>
+        <li onclick="goToCategory('women_dresses')">Туника и платья</li>
+        <li onclick="goToCategory('women_set')">Двойка женская</li>
+      </ul>
+      <button class="back-btn" onclick="toggleMenu()">Закрыть меню</button>
     </div>
+
+    <!-- Главные категории -->
+    <div id="mainCatalog" class="catalog">
+      <div class="card" onclick="showSubCatalog('men')">
+        <img src="images/men.jpg" alt="Мужское">
+        <h3>Мужское</h3>
+      </div>
+      <div class="card" onclick="showSubCatalog('women')">
+        <img src="images/women.jpg" alt="Женское">
+        <h3>Женское</h3>
+      </div>
+    </div>
+
+    <!-- Подкаталоги -->
+    <div id="subCatalog" class="catalog" style="display:none;"></div>
+
+    <!-- Контейнер для товаров -->
+    <div id="products" class="catalog" style="display:none;"></div>
   </div>
-
-  <!-- Подкаталоги -->
-  <div id="subCatalog" class="catalog" style="display:none;"></div>
-
-  <!-- Контейнер для товаров -->
-  <div id="products" class="catalog" style="display:none;"></div>
 
   <script>
     const firebaseConfig = {
@@ -92,24 +95,16 @@
     const sideMenu = document.getElementById("sideMenu");
 
     function toggleAbout() {
-      if (aboutInfo.classList.contains("show")) {
-        aboutInfo.classList.remove("show");
-      } else {
-        aboutInfo.classList.add("show");
-      }
+      aboutInfo.classList.toggle("show");
     }
 
     function toggleMenu() {
-      if (sideMenu.classList.contains("show")) {
-        sideMenu.classList.remove("show");
-      } else {
-        sideMenu.classList.add("show");
-      }
+      sideMenu.classList.toggle("show");
     }
 
     function goToCategory(categoryId) {
-      sideMenu.classList.remove("show"); // закрываем меню
-      openCategory(categoryId);          // открываем категорию
+      sideMenu.classList.remove("show");
+      openCategory(categoryId);
     }
 
     function showSubCatalog(type) {
@@ -187,15 +182,28 @@
 
       productDiv.innerHTML = `
         <img src="${data.image}" alt="${data.name}">
-        <h3>${data.name}</h3>
         <p>Размер: ${data.size}</p>
         <div class="buttons">
           <button>$${data.price}</button>
-          <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
+      <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
         </div>
       `;
 
       productsContainer.appendChild(productDiv);
+    }
+
+    async function savePrice(customId) {
+      const newPrice = document.getElementById("price-" + customId).value;
+
+      // ищем документ по полю id (обычный ID)
+      const snapshot = await db.collection("products").where("id", "==", customId).get();
+      snapshot.forEach(async (doc) => {
+        await db.collection("products").doc(doc.id).update({
+          price: newPrice
+        });
+      });
+
+      alert("Цена обновлена!");
     }
 
     function copyId(id) {
@@ -204,6 +212,34 @@
       if (btn) {
         btn.classList.add("green");
         setTimeout(() => btn.classList.remove("green"), 1000);
+      }
+    }
+
+    // Поиск по ID
+    async function searchProduct() {
+      const searchId = document.getElementById("searchInput").value.trim();
+      if (!searchId) {
+        alert("Введите ID товара!");
+        return;
+      }
+
+      try {
+        const snapshot = await db.collection("products").where("id", "==", searchId).get();
+
+        if (snapshot.empty) {
+          alert("Товар не найден!");
+          return;
+        }
+
+        productsContainer.style.display = "flex";
+        productsContainer.innerHTML = "";
+
+        snapshot.forEach(doc => {
+          renderProduct(doc);
+        });
+      } catch (error) {
+        console.error("Ошибка при поиске:", error);
+        alert("Ошибка при поиске. Подробности смотри в консоли.");
       }
     }
   </script>
