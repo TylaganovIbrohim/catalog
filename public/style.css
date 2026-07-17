@@ -3,6 +3,7 @@ body {
   font-family: Arial, sans-serif;
   background: #000000; /* фон сайта полностью черный */
   color: #fff;
+  animation: fadeInBody 1.2s ease-in-out;
 }
 
 h1 {
@@ -10,6 +11,7 @@ h1 {
   color: orange;
   font-size: 28px;
   margin: 20px 0;
+  animation: pulseTitle 2s infinite;
 }
 
 .catalog {
@@ -28,31 +30,38 @@ h1 {
   width: 220px;
   text-align: center;
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
   opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 0.5s forwards;
+  transform: translateY(30px) scale(0.95);
+  animation: fadeInUp 0.6s forwards;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 10px rgba(255, 165, 0, 0.5);
+  transform: translateY(-8px) scale(1.05) rotate(-1deg);
+  box-shadow: 0 8px 20px rgba(255, 165, 0, 0.6);
 }
 
 .card img {
   max-width: 100%;
   border-radius: 8px;
+  transition: transform 0.4s ease;
+}
+
+.card:hover img {
+  transform: scale(1.08);
 }
 
 .card h3 {
   color: #fff;
   margin: 10px 0;
   font-size: 18px;
+  animation: fadeInText 1s ease;
 }
 
 .card p {
   color: #ccc;
   margin: 5px 0;
+  animation: fadeInText 1.2s ease;
 }
 
 .buttons {
@@ -72,10 +81,18 @@ button {
   color: #000;
   font-weight: bold;
   font-size: 14px;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+button:hover {
+  background: #ffcc00;
+  transform: scale(1.1);
 }
 
 button.green {
   background: #4caf50 !important;
+  color: #fff !important;
+  animation: blinkGreen 0.8s ease;
 }
 
 .back-btn {
@@ -89,14 +106,19 @@ button.green {
   color: #000;
   font-weight: bold;
   opacity: 1;
-  animation: none;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #ffcc00;
+  transform: scale(1.05);
 }
 
 /* Кнопка "Меню" */
 #menuBtn {
   position: absolute;
   top: 20px;
-  left: 20px; /* слева */
+  left: 20px;
   background: orange;
   border: none;
   padding: 13px 20px;
@@ -105,36 +127,39 @@ button.green {
   font-weight: bold;
   color: #000;
   box-shadow: 0 0 10px rgba(255,165,0,0.6);
-  transition: 0.3s;
+  transition: transform 0.3s ease, background 0.3s ease;
+  animation: bounceBtn 2s infinite;
 }
 
 #menuBtn:hover {
   background: #ffcc00;
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 /* Боковое меню */
 #sideMenu {
   position: fixed;
   top: 0;
-  left: -300px; /* скрыто */
+  left: -300px;
   width: 250px;
   height: 100%;
   background: #111;
   border-right: 2px solid orange;
   padding: 20px;
   box-shadow: 2px 0 10px rgba(255,165,0,0.4);
-  transition: left 0.3s ease;
+  transition: left 0.4s ease;
   z-index: 2000;
 }
 
 #sideMenu.show {
-  left: 0; /* выезжает */
+  left: 0;
+  animation: slideInLeft 0.5s ease;
 }
 
 #sideMenu h3 {
   color: orange;
   margin-bottom: 15px;
+  animation: fadeInText 1s ease;
 }
 
 #sideMenu ul {
@@ -146,11 +171,12 @@ button.green {
   margin: 10px 0;
   cursor: pointer;
   color: #fff;
-  transition: 0.3s;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 #sideMenu ul li:hover {
   color: orange;
+  transform: translateX(5px);
 }
 
 /* Кнопка "О нас" */
@@ -161,17 +187,18 @@ button.green {
   background: orange;
   border: none;
   padding: 13px 20px;
-  border-radius: 50%; /* круглая кнопка */
+  border-radius: 50%;
   cursor: pointer;
   font-weight: bold;
   color: #000;
   box-shadow: 0 0 10px rgba(255,165,0,0.6);
-  transition: 0.3s;
+  transition: transform 0.3s ease, background 0.3s ease;
+  animation: pulseBtn 2s infinite;
 }
 
 #aboutBtn:hover {
   background: #ffcc00;
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(10deg);
 }
 
 /* Блок информации */
@@ -189,23 +216,131 @@ button.green {
   z-index: 1000;
   opacity: 0;
   transform: translateY(-10px);
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
 }
 
 #aboutInfo.show {
   display: block;
   opacity: 1;
   transform: translateY(0);
+  animation: fadeInBox 0.6s ease;
 }
 
-/* Анимация появления карточек */
+/* Поисковик снизу */
+#searchBox {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #111;
+  border-top: 2px solid orange;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  z-index: 1000;
+  animation: slideUp 0.8s ease;
+}
+
+#searchBox input {
+  margin: 0 8px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 2px solid orange;
+  background: #222;
+  color: #fff;
+  font-size: 16px;
+  transition: 0.3s;
+  width: 220px;
+  text-align: center;
+}
+
+#searchBox input:focus {
+  border-color: #4caf50;
+  outline: none;
+  transform: scale(1.05);
+}
+
+#searchBox button {
+  margin-left: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: 2px solid orange;
+  background: orange;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#searchBox button:hover {
+  background: #ffcc00;
+  transform: scale(1.1);
+}
+
+/* Анимации */
 @keyframes fadeInUp {
+  from {opacity: 0; transform: translateY(30px) scale(0.95);}
+  to {opacity: 1; transform: translateY(0) scale(1);}
+}
+
+@keyframes fadeInText {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+@keyframes fadeInBody {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes pulseTitle {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.05);}
+  100% {transform: scale(1);}
+}
+
+@keyframes pulseBtn {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.15);}
+  100% {transform: scale(1);}
+}
+
+@keyframes bounceBtn {
+  0%, 100% {transform: translateY(0);}
+  50% {transform: translateY(-5px);}
+}
+
+@keyframes slideInLeft {
+  from {left: -300px;}
+  to {left: 0;}
+}
+
+@keyframes fadeInBox {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(-15px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes blinkGreen {
+  0% { background: #4caf50; opacity: 1; }
+  50% { background: #66bb6a; opacity: 0.6; }
+  100% { background: #4caf50; opacity: 1; }
 }
