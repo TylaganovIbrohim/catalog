@@ -53,6 +53,8 @@
         <li onclick="goToCategory('women_shirts')">Футболки женские</li>
         <li onclick="goToCategory('women_dresses')">Туника и платья</li>
         <li onclick="goToCategory('women_set')">Двойка женская</li>
+        <li onclick="goToCategory('men_sweatshirt')">Свитшоты мужские</li>
+        <li onclick="goToCategory('women_sweatshirt')">Свитшоты женские</li>
       </ul>
       <button class="back-btn" onclick="toggleMenu()">Закрыть меню</button>
     </div>
@@ -117,6 +119,7 @@
       let categories = [];
       if (type === "men") {
         categories = [
+          {name: "Толстовака мужская", id: "men_sweatshirt", img: "images/men_sweatshirt.png"},
           {name: "Штаны мужские", id: "men_trousers", img: "images/men_trousers.png"},
           {name: "Трусы мужские", id: "men_underwear", img: "images/men_underwear.png"},
           {name: "Майки мужские", id: "men_tshirt", img: "images/men_tshirt.png"},
@@ -126,6 +129,7 @@
         ];
       } else {
         categories = [
+          {name: "Толстовака женские", id: "women_sweatshirt", img: "images/women_sweatshirt.png"},
           {name: "Штаны женские", id: "women_trousers", img: "images/women_trousers.png"},
           {name: "Трусы женские", id: "women_underwear", img: "images/women_underwear.png"},
           {name: "Майки женские", id: "women_tshirt", img: "images/women_tshirt.png"},
