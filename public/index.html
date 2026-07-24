@@ -39,22 +39,31 @@
       <h3>Категории</h3>
       <ul>
         <li onclick="goToCategory('men_sweatshirt')">Толстовака мужские</li>
+        <li onclick="goToCategory('men_shorts')">Шорты мужские</li>
         <li onclick="goToCategory('men_trousers')">Штаны мужские</li>
         <li onclick="goToCategory('men_underwear')">Трусы мужские</li>
         <li onclick="goToCategory('men_tshirt')">Майки мужские</li>
         <li onclick="goToCategory('men_pajamas')">Пижамы мужские</li>
         <li onclick="goToCategory('men_shirts')">Футболки мужские</li>
+        <li onclick="goToCategory('men_noodle_tshirts')">Футболки мужские лапша</li>
         <li onclick="goToCategory('men_long_sleeve')">Футболки с длинным рукавом</li>
-        <li onclick="goToCategory('women_trousers')">Штаны женская</li>
-        <li onclick="goToCategory('women_underwear')">Трусы женские</li>
-        <li onclick="goToCategory('women_tshirt')">Майки женские</li>
-        <li onclick="goToCategory('women_sarochka')">Сарочка</li>
+        <li onclick="goToCategory('women_panties')">Трусы женские</li>
+        <li onclick="goToCategory('women_tshirts')">Майки женские</li>
+        <li onclick="goToCategory('sarah')">Сарочка</li>
         <li onclick="goToCategory('women_pajamas')">Пижама женские</li>
-        <li onclick="goToCategory('women_robes')">Халаты</li>
-        <li onclick="goToCategory('women_shirts')">Футболки женские</li>
-        <li onclick="goToCategory('women_dresses')">Туника и платья</li>
-        <li onclick="goToCategory('women_set')">Двойка женская</li>
-        <li onclick="goToCategory('women_sweatshirt')">Толстовака женские</li>
+        <li onclick="goToCategory('robes')">Халаты</li>
+        <li onclick="goToCategory('tunics_and_dresses')">Туника и платья</li>
+        <li onclick="goToCategory('women_deuce')">Двойка женская</li>
+        <li onclick="goToCategory('women_hoodies')">Худи женские</li>
+        <li onclick="goToCategory('angora_trousers')">Брюки ангорка</li>
+        <li onclick="goToCategory('women_trousers')">Штаны женские</li>
+        <li onclick="goToCategory('bamboo_pants')">Штаны бамбук</li>
+        <li onclick="goToCategory('breeches')">Бриджи</li>
+        <li onclick="goToCategory('women_shirt')">Рубашка женская</li>
+        <li onclick="goToCategory('jackets')">Жакеты</li>
+        <li onclick="goToCategory('turtleneck')">Водолазка</li>
+        <li onclick="goToCategory('wwo_piece_suit')">Костюм двойка</li>
+        <li onclick="goToCategory('women_sweatshirt')">Толстовка женская</li>
       </ul>
       <button class="back-btn" onclick="toggleMenu()">Закрыть меню</button>
     </div>
@@ -120,25 +129,35 @@
       if (type === "men") {
         categories = [
           {name: "Толстовака мужская", id: "men_sweatshirt", img: "images/men_sweatshirt.png"},
+          {name: "Шорты мужские", id: "men_shorts", img: "images/men_shorts.png"},
           {name: "Штаны мужские", id: "men_trousers", img: "images/men_trousers.png"},
+          {name: "Футболки мужские", id: "men_shirts", img: "images/men_shirts.png"},
           {name: "Трусы мужские", id: "men_underwear", img: "images/men_underwear.png"},
           {name: "Майки мужские", id: "men_tshirt", img: "images/men_tshirt.png"},
           {name: "Пижамы мужские", id: "men_pajamas", img: "images/men_pajamas.png"},
-          {name: "Футболки мужские", id: "men_shirts", img: "images/men_shirts.png"},
+          {name: "Футболки мужские лапша", id: "men_shirts", img: "images/men_shirts.png"},
+          {name: "Футболки мужские", id: "men_noodle_tshirts", img: "images/men_noodle_tshirts.png"},
           {name: "Футболки с длинным рукавом", id: "men_long_sleeve", img: "images/men_long_sleeve.png"}
         ];
       } else {
         categories = [
-          {name: "Толстовака женские", id: "women_sweatshirt", img: "images/women_sweatshirt.png"},
-          {name: "Штаны женские", id: "women_trousers", img: "images/women_trousers.png"},
-          {name: "Трусы женские", id: "women_underwear", img: "images/women_underwear.png"},
-          {name: "Майки женские", id: "women_tshirt", img: "images/women_tshirt.png"},
-          {name: "Сарочка", id: "women_sarochka", img: "images/women_sarochka.png"},
+          {name: "Трусы женские", id: "women_panties", img: "images/women_panties.png"},
+          {name: "Майки женские", id: "women_tshirts", img: "images/women_tshirts.png"},
+          {name: "Сарочка", id: "sarah", img: "images/sarah.png"},
           {name: "Пижама женские", id: "women_pajamas", img: "images/women_pajamas.png"},
-          {name: "Халаты", id: "women_robes", img: "images/women_robes.png"},
-          {name: "Футболки женские", id: "women_shirts", img: "images/women_shirts.png"},
-          {name: "Туника и платья", id: "women_dresses", img: "images/women_dresses.png"},
-          {name: "Двойка женская", id: "women_set", img: "images/women_set.png"}
+          {name: "Халаты", id: "robes", img: "images/robes.png"},
+          {name: "Туника и платья", id: "tunics_and_dresses", img: "images/tunics_and_dresses.png"},
+          {name: "Двойка женская ", id: "women_deuce", img: "images/women_deuce.png"},
+          {name: "Худи женские", id: "women_hoodies", img: "images/women_hoodies.png"},
+          {name: "Брюки ангорка ", id: "angora_trousers", img: "images/angora_trousers.png"},
+          {name: "Штаны женские", id: "women_trousers", img: "images/women_trousers.png"},
+          {name: "Штаны бамбук", id: "bamboo_pants", img: "images/bamboo_pants.png"},
+          {name: "Бриджи", id: "breeches", img: "images/breeches.png"},
+          {name: "Рубашка женская", id: "women_shirt", img: "images/women_shirt.png"},
+          {name: "Жакеты", id: "jackets", img: "images/jackets.png"},
+          {name: "Водолазка", id: "turtleneck", img: "images/turtleneck.png"},
+          {name: "Костюм двойка", id: "wwo_piece_suit", img: "images/wwo_piece_suit.png"},
+          {name: "Толстовка женская", id: "women_sweatshirt", img: "images/women_sweatshirt.png"}
         ];
       }
 
