@@ -202,22 +202,54 @@
       productsContainer.appendChild(backBtn);
     }
 
+    // --- ВОТ ЗДЕСЬ Я ДОБАВИЛА УМНУЮ ПРОВЕРКУ ФОРМАТОВ ---
     function renderProduct(doc) {
       const data = doc.data();
       const productDiv = document.createElement("div");
       productDiv.classList.add("card");
 
+      // Создаем элемент картинки заранее, чтобы мы могли менять её src
+      const imgElement = document.createElement("img");
+      
+      // Функция, которая проверяет наличие файла
+      const checkImage = (ext) => {
+        return new Promise((resolve) => {
+          const tempImg = new Image();
+          tempImg.onload = () => resolve(true);
+          tempImg.onerror = () => resolve(false);
+          tempImg.src = `sprite/${data.id}.${ext}`;
+        });
+      };
+
+      // Запускаем проверку: сначала .jpg, потом .jpeg
+      (async () => {
+        let finalSrc = '';
+        if (await checkImage('jpg')) {
+          finalSrc = `sprite/${data.id}.jpg`;
+        } else if (await checkImage('jpeg')) {
+          finalSrc = `sprite/${data.id}.jpeg`;
+        } else {
+          // Если ничего не найдено, можно поставить заглушку или оставить пустым
+          console.warn(`Фото для ID ${data.id} не найдено ни в jpg, ни в jpeg`);
+          finalSrc = 'placeholder.png'; // Убедись, что у тебя есть такая картинка, или убери эту строку
+        }
+        imgElement.src = finalSrc;
+      })();
+
       productDiv.innerHTML = `
-        <img src="sprite/${data.id}.jpeg">
         <p><b>Размер: ${data.size}</b></p>
         <div class="buttons">
           <button>$${data.price}</button>
           <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
         </div>
       `;
+      
+      // Вставляем картинку в начало карточки
+      productDiv.insertBefore(imgElement, productDiv.firstChild);
 
       productsContainer.appendChild(productDiv);
     }
+    // ----------------------------------------------------
 
     async function savePrice(customId) {
       const newPrice = document.getElementById("price-" + customId).value;
