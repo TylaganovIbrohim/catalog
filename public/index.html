@@ -9,20 +9,14 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Стили для закрепления элементов */
+    /* Стили для логотипа */
     #siteLogo {
       display: block;
       margin: 0 auto 15px auto;
-      max-width: 250px; /* Увеличенный размер лого */
-      transition: all 0.3s ease;
+      max-width: 280px; /* Немного увеличили размер */
     }
 
-    /* Класс для скрытия лого во внутренних разделах */
-    .logo-hidden {
-      display: none !important;
-    }
-
-    /* Закрепляем верхние кнопки */
+    /* Закрепляем верхние кнопки (Меню и О нас) */
     #topControls {
       position: fixed;
       top: 10px;
@@ -32,21 +26,21 @@
       gap: 10px;
     }
 
-    /* Чтобы контент не залезал под фиксированные кнопки */
+    /* Отступ для контента, чтобы он не залезал под кнопки */
     #mainContent {
-      padding-top: 60px; 
-      padding-bottom: 80px; /* Место для нижней кнопки */
+      padding-top: 80px; 
+      padding-bottom: 90px; /* Место для нижней кнопки */
     }
 
     /* Стили бокового меню */
     #sideMenu {
-      max-height: 90vh; 
+      max-height: 85vh; 
       overflow-y: auto; 
       scroll-behavior: smooth;
       padding-bottom: 20px;
     }
 
-    /* Закрепляем кнопку "Назад" внизу */
+    /* Закрепляем кнопку "Назад" внизу экрана без анимации */
     .fixed-back-btn {
       position: fixed;
       bottom: 20px;
@@ -56,6 +50,9 @@
       max-width: 400px;
       z-index: 999;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      /* Убираем любые переходы/анимации */
+      transition: none !important;
+      animation: none !important;
     }
 
     /* Стилизация скроллбара */
@@ -68,13 +65,13 @@
 </head>
 <body>
 
-  <!-- Верхние кнопки (теперь они всегда на месте) -->
+  <!-- Верхние кнопки (всегда на месте) -->
   <div id="topControls">
     <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
     <button id="menuBtn" onclick="toggleMenu()">☰</button>
   </div>
 
-  <!-- Логотип -->
+  <!-- Логотип (всегда виден) -->
   <img src="logo.png" alt="Логотип" id="siteLogo">
 
   <!-- Основной контент -->
@@ -106,7 +103,7 @@
         <li onclick="goToCategory('men_long_sleeve')">Футболки с длинным рукавом</li>
         <li onclick="goToCategory('women_panties')">Трусы женские</li>
         <li onclick="goToCategory('women_tshirts')">Майки женские</li>
-        <li onclick="goToCategory('women_tshirt')">Женские футболки</li> <!-- НОВАЯ КАТЕГОРИЯ -->
+        <li onclick="goToCategory('women_tshirt')">Женские футболки</li>
         <li onclick="goToCategory('sarah')">Сарочка</li>
         <li onclick="goToCategory('women_pajamas')">Пижама женские</li>
         <li onclick="goToCategory('robes')">Халаты</li>
@@ -164,7 +161,6 @@
     const subCatalog = document.getElementById("subCatalog");
     const aboutInfo = document.getElementById("aboutInfo");
     const sideMenu = document.getElementById("sideMenu");
-    const siteLogo = document.getElementById("siteLogo");
 
     function toggleAbout() {
       aboutInfo.classList.toggle("show");
@@ -180,9 +176,6 @@
     }
 
     function showSubCatalog(type) {
-      // Скрываем логотип при переходе в подкатегории
-      siteLogo.classList.add("logo-hidden");
-      
       mainCatalog.style.display = "none";
       subCatalog.style.display = "flex";
       subCatalog.innerHTML = "";
@@ -205,7 +198,7 @@
         categories = [
           {name: "Трусы женские", id: "women_panties", img: "images/women_panties.png"},
           {name: "Майки женские", id: "women_tshirts", img: "images/women_tshirts.png"},
-          {name: "Женские футболки", id: "women_tshirt", img: "images/women_tshirt.png"}, // Добавлено фото для новой категории
+          {name: "Женские футболки", id: "women_tshirt", img: "images/women_tshirt.png"},
           {name: "Сарочка", id: "sarah", img: "images/sarah.png"},
           {name: "Пижама женские", id: "women_pajamas", img: "images/women_pajamas.png"},
           {name: "Халаты", id: "robes", img: "images/robes.png"},
@@ -235,14 +228,13 @@
         subCatalog.appendChild(div);
       });
 
-      // Кнопка назад теперь фиксированная
+      // Кнопка назад (фиксированная)
       const backBtn = document.createElement("button");
       backBtn.textContent = "← Назад";
       backBtn.classList.add("back-btn", "fixed-back-btn");
       backBtn.onclick = () => {
         subCatalog.style.display = "none";
         mainCatalog.style.display = "flex";
-        siteLogo.classList.remove("logo-hidden"); // Возвращаем лого
       };
       subCatalog.appendChild(backBtn);
     }
@@ -257,7 +249,7 @@
         renderProduct(doc);
       });
 
-      // Кнопка назад теперь фиксированная
+      // Кнопка назад (фиксированная)
       const backBtn = document.createElement("button");
       backBtn.textContent = "← Назад к подкатегориям";
       backBtn.classList.add("back-btn", "fixed-back-btn");
