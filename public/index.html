@@ -8,85 +8,21 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 
-  <style>
-    /* Стили для логотипа */
-    #siteLogo {
-      display: block;
-      margin: 0 auto 15px auto;
-      max-width: 300px;
-    }
-
-    /* Закрепляем верхние кнопки (Меню и О нас) */
-    #topControls {
-      position: fixed;
-
-    }
-
-    /* Принудительные стили для кнопок, чтобы они были видны */
-    #menuBtn, #aboutBtn {
-      display: block !important; /* Гарантируем видимость */
-      visibility: visible !important;
-      opacity: 1 !important;
-      background-color: rgba(0, 0, 0, 0.6); /* Темный фон для контраста */
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      font-size: 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      z-index: 10000;
-    }
-
-    /* Отступ для контента */
-    #mainContent {
-      padding-top: 80px; 
-      padding-bottom: 90px;
-    }
-
-    /* Стили бокового меню */
-    #sideMenu {
-      max-height: 85vh; 
-      overflow-y: auto; 
-      scroll-behavior: smooth;
-      padding-bottom: 20px;
-    }
-
-    /* Закрепляем кнопку "Назад" внизу экрана */
-    .fixed-back-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 400px;
-      z-index: 9999;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: none !important;
-      animation: none !important;
-    }
-
-    /* Стилизация скроллбара */
-    #sideMenu::-webkit-scrollbar { width: 6px; }
-    #sideMenu::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
-  </style>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-
-  <!-- Верхние кнопки (всегда на месте) -->
-  <div id="topControls">
-    <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
-    <button id="menuBtn" onclick="toggleMenu()">☰</button>
-  </div>
-
-  <!-- Логотип (всегда виден) -->
+  <!-- Логотип закреплён сверху -->
   <img src="logo.png" alt="Логотип" id="siteLogo">
 
-  <!-- Основной контент -->
+  <!-- Основной контент ниже логотипа -->
   <div id="mainContent">
-    
+    <!-- Кнопка "О нас" -->
+    <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
+
+    <!-- Кнопка "Меню" -->
+    <button id="menuBtn" onclick="toggleMenu()">☰</button>
+
     <!-- Блок информации -->
     <div id="aboutInfo">
       <h3>О нас</h3>
@@ -207,8 +143,8 @@
       } else {
         categories = [
           {name: "Трусы женские", id: "women_panties", img: "images/women_panties.png"},
-          {name: "Майки женские", id: "women_tshirts", img: "images/women_tshirts.png"},
           {name: "Женские футболки", id: "women_tshirt", img: "images/women_tshirt.png"},
+          {name: "Майки женские", id: "women_tshirts", img: "images/women_tshirts.png"},
           {name: "Сарочка", id: "sarah", img: "images/sarah.png"},
           {name: "Пижама женские", id: "women_pajamas", img: "images/women_pajamas.png"},
           {name: "Халаты", id: "robes", img: "images/robes.png"},
@@ -238,10 +174,9 @@
         subCatalog.appendChild(div);
       });
 
-      // Кнопка назад (фиксированная)
       const backBtn = document.createElement("button");
       backBtn.textContent = "← Назад";
-      backBtn.classList.add("back-btn", "fixed-back-btn");
+      backBtn.classList.add("back-btn");
       backBtn.onclick = () => {
         subCatalog.style.display = "none";
         mainCatalog.style.display = "flex";
@@ -259,10 +194,9 @@
         renderProduct(doc);
       });
 
-      // Кнопка назад (фиксированная)
       const backBtn = document.createElement("button");
       backBtn.textContent = "← Назад к подкатегориям";
-      backBtn.classList.add("back-btn", "fixed-back-btn");
+      backBtn.classList.add("back-btn");
       backBtn.onclick = () => {
         productsContainer.style.display = "none";
         subCatalog.style.display = "flex";
@@ -270,57 +204,34 @@
       productsContainer.appendChild(backBtn);
     }
 
-    // --- УМНАЯ ПРОВЕРКА ФОРМАТОВ В ПАПКЕ images ---
     function renderProduct(doc) {
       const data = doc.data();
       const productDiv = document.createElement("div");
       productDiv.classList.add("card");
 
-      const imgElement = document.createElement("img");
-      
-      const checkImage = (ext) => {
-        return new Promise((resolve) => {
-          const tempImg = new Image();
-          tempImg.onload = () => resolve(true);
-          tempImg.onerror = () => resolve(false);
-          tempImg.src = `images/${data.id}.${ext}`;
-        });
-      };
-
-      (async () => {
-        let finalSrc = '';
-        if (await checkImage('jpg')) {
-          finalSrc = `images/${data.id}.jpg`;
-        } else if (await checkImage('jpeg')) {
-          finalSrc = `images/${data.id}.jpeg`;
-        } else {
-          console.warn(`Фото для ID ${data.id} не найдено ни в jpg, ни в jpeg`);
-          finalSrc = 'placeholder.png'; 
-        }
-        imgElement.src = finalSrc;
-      })();
-
       productDiv.innerHTML = `
+        <img src="sprite/${data.id}.jpeg">
         <p><b>Размер: ${data.size}</b></p>
         <div class="buttons">
           <button>$${data.price}</button>
           <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
         </div>
       `;
-      
-      productDiv.insertBefore(imgElement, productDiv.firstChild);
+
       productsContainer.appendChild(productDiv);
     }
-    // ----------------------------------------------------
 
     async function savePrice(customId) {
       const newPrice = document.getElementById("price-" + customId).value;
+
+      // ищем документ по полю id (обычный ID)
       const snapshot = await db.collection("products").where("id", "==", customId).get();
       snapshot.forEach(async (doc) => {
         await db.collection("products").doc(doc.id).update({
           price: newPrice
         });
       });
+
       alert("Цена обновлена!");
     }
 
@@ -333,6 +244,7 @@
       }
     }
 
+    // Поиск по ID
     async function searchProduct() {
       const searchId = document.getElementById("searchInput").value.trim();
       if (!searchId) {
@@ -342,6 +254,7 @@
 
       try {
         const snapshot = await db.collection("products").where("id", "==", searchId).get();
+
         if (snapshot.empty) {
           alert("Товар не найден!");
           return;
