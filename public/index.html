@@ -13,7 +13,7 @@
     #siteLogo {
       display: block;
       margin: 0 auto 15px auto;
-      max-width: 280px; /* Немного увеличили размер */
+      max-width: 300px;
     }
 
     /* Закрепляем верхние кнопки (Меню и О нас) */
@@ -21,15 +21,30 @@
       position: fixed;
       top: 10px;
       right: 10px;
-      z-index: 1000;
+      z-index: 9999; /* Очень высокий приоритет */
       display: flex;
       gap: 10px;
     }
 
-    /* Отступ для контента, чтобы он не залезал под кнопки */
+    /* Принудительные стили для кнопок, чтобы они были видны */
+    #menuBtn, #aboutBtn {
+      display: block !important; /* Гарантируем видимость */
+      visibility: visible !important;
+      opacity: 1 !important;
+      background-color: rgba(0, 0, 0, 0.6); /* Темный фон для контраста */
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10000;
+    }
+
+    /* Отступ для контента */
     #mainContent {
       padding-top: 80px; 
-      padding-bottom: 90px; /* Место для нижней кнопки */
+      padding-bottom: 90px;
     }
 
     /* Стили бокового меню */
@@ -40,7 +55,7 @@
       padding-bottom: 20px;
     }
 
-    /* Закрепляем кнопку "Назад" внизу экрана без анимации */
+    /* Закрепляем кнопку "Назад" внизу экрана */
     .fixed-back-btn {
       position: fixed;
       bottom: 20px;
@@ -48,9 +63,8 @@
       transform: translateX(-50%);
       width: 90%;
       max-width: 400px;
-      z-index: 999;
+      z-index: 9999;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      /* Убираем любые переходы/анимации */
       transition: none !important;
       animation: none !important;
     }
