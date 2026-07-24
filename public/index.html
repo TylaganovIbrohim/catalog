@@ -204,34 +204,58 @@
       productsContainer.appendChild(backBtn);
     }
 
+    // --- УМНАЯ ПРОВЕРКА ФОРМАТОВ В ПАПКЕ images ---
     function renderProduct(doc) {
       const data = doc.data();
       const productDiv = document.createElement("div");
       productDiv.classList.add("card");
 
+      const imgElement = document.createElement("img");
+      
+      const checkImage = (ext) => {
+        return new Promise((resolve) => {
+          const tempImg = new Image();
+          tempImg.onload = () => resolve(true);
+          tempImg.onerror = () => resolve(false);
+          // ИЗМЕНЕНО: теперь ищем в папке images
+          tempImg.src = `images/${data.id}.${ext}`;
+        });
+      };
+
+      (async () => {
+        let finalSrc = '';
+        if (await checkImage('jpg')) {
+          finalSrc = `images/${data.id}.jpg`;
+        } else if (await checkImage('jpeg')) {
+          finalSrc = `images/${data.id}.jpeg`;
+        } else {
+          console.warn(`Фото для ID ${data.id} не найдено ни в jpg, ни в jpeg`);
+          finalSrc = 'placeholder.png'; 
+        }
+        imgElement.src = finalSrc;
+      })();
+
       productDiv.innerHTML = `
-        <img src="sprite/${data.id}.jpeg">
         <p><b>Размер: ${data.size}</b></p>
         <div class="buttons">
           <button>$${data.price}</button>
           <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
         </div>
       `;
-
+      
+      productDiv.insertBefore(imgElement, productDiv.firstChild);
       productsContainer.appendChild(productDiv);
     }
+    // ----------------------------------------------------
 
     async function savePrice(customId) {
       const newPrice = document.getElementById("price-" + customId).value;
-
-      // ищем документ по полю id (обычный ID)
       const snapshot = await db.collection("products").where("id", "==", customId).get();
       snapshot.forEach(async (doc) => {
         await db.collection("products").doc(doc.id).update({
           price: newPrice
         });
       });
-
       alert("Цена обновлена!");
     }
 
@@ -244,7 +268,6 @@
       }
     }
 
-    // Поиск по ID
     async function searchProduct() {
       const searchId = document.getElementById("searchInput").value.trim();
       if (!searchId) {
@@ -254,7 +277,6 @@
 
       try {
         const snapshot = await db.collection("products").where("id", "==", searchId).get();
-
         if (snapshot.empty) {
           alert("Товар не найден!");
           return;
