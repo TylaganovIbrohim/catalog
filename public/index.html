@@ -31,7 +31,7 @@
             justify-content: space-between;
         }
         .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 8px; color: var(--text); }
-        .header-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+        .header-title { font-size: 18px; font-weight: 700; color: var(--primary); text-align: center; flex-grow: 1; }
         .back-btn {
             display: none;
             background: none;
@@ -41,6 +41,8 @@
             cursor: pointer;
             padding: 8px;
             font-weight: 700;
+            min-width: 40px;
+            text-align: left;
         }
         .back-btn.active { display: block; }
 
@@ -231,36 +233,14 @@
     
     <h3>Навигация</h3>
     <ul>
-        <li onclick="filterByCategory('all')">🔥 Все товары</li>
+        <li onclick="filterByDirectCategory('all')">🔥 Все товары</li>
     </ul>
 
     <h3>Мужское</h3>
-    <ul>
-        <li onclick="filterByCategory('Трусы мужские')">Трусы мужские</li>
-        <li onclick="filterByCategory('Майки мужские')">Майки мужские</li>
-        <li onclick="filterByCategory('Пижама мужская')">Пижама мужская</li>
-        <li onclick="filterByCategory('Футболки мужская')">Футболки мужская</li>
-        <li onclick="filterByCategory('Футболка мужская с длин рукав')">Футболка мужская с длин рукав</li>
-        <li onclick="filterByCategory('Толстовка мужская')">Толстовка мужская</li>
-        <li onclick="filterByCategory('Толстова мужская')">Толстова мужская</li>
-        <li onclick="filterByCategory('Штаны мужские')">Штаны мужские</li>
-        <li onclick="filterByCategory('Шорты мужские')">Шорты мужские</li>
-    </ul>
+    <ul id="sidebarMale"></ul>
 
     <h3>Женское</h3>
-    <ul>
-        <li onclick="filterByCategory('Трусы женские')">Трусы женские</li>
-        <li onclick="filterByCategory('Майки женские')">Майки женские</li>
-        <li onclick="filterByCategory('Сарочка')">Сарочка</li>
-        <li onclick="filterByCategory('Пижама женские')">Пижама женские</li>
-        <li onclick="filterByCategory('Двойка женская')">Двойка женская</li>
-        <li onclick="filterByCategory('Халаты')">Халаты</li>
-        <li onclick="filterByCategory('Туника и платья')">Туника и платья</li>
-        <li onclick="filterByCategory('Рубашка женская')">Рубашка женская</li>
-        <li onclick="filterByCategory('Костюм двойка')">Костюм двойка</li>
-        <li onclick="filterByCategory('Толстовка женская')">Толстовка женская</li>
-        <li onclick="filterByCategory('Штаны женские')">Штаны женские</li>
-    </ul>
+    <ul id="sidebarFemale"></ul>
 </div>
 
 <!-- Главный экран -->
@@ -301,12 +281,63 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Чёткий список категорий с точным соответствием id-name из Firebase
+    const categories = [
+        // Мужское
+        { id: 'men_underwear', name: 'Трусы мужские', gender: 'male' },
+        { id: 'men_tshirt', name: 'Майки мужские', gender: 'male' },
+        { id: 'men_pajamas', name: 'Пижамы мужские', gender: 'male' },
+        { id: 'men_shirts', name: 'Футболки мужские', gender: 'male' },
+        { id: 'men_long_sleeve', name: 'Футболки с длинным рукавом', gender: 'male' },
+        { id: 'men_sweatshirt', name: 'Толстовка мужская', gender: 'male' },
+        { id: 'men_trousers', name: 'Штаны мужские', gender: 'male' },
+        { id: 'men_shorts', name: 'Шорты мужские', gender: 'male' },
+        { id: 'men_noodle_tshirts', name: 'Футболки мужские лапша', gender: 'male' },
+        
+        // Женское
+        { id: 'women_panties', name: 'Трусы женские', gender: 'female' },
+        { id: 'women_tshirts', name: 'Майки женские', gender: 'female' },
+        { id: 'women_tshirt', name: 'Женские футболки', gender: 'female' },
+        { id: 'sarah', name: 'Сарочка', gender: 'female' },
+        { id: 'women_pajamas', name: 'Пижама женские', gender: 'female' },
+        { id: 'robes', name: 'Халаты', gender: 'female' },
+        { id: 'tunics_and_dresses', name: 'Туника и платья', gender: 'female' },
+        { id: 'women_deuce', name: 'Двойка женская', gender: 'female' },
+        { id: 'women_hoodies', name: 'Худи женские', gender: 'female' },
+        { id: 'angora_trousers', name: 'Брюки ангорка', gender: 'female' },
+        { id: 'women_trousers', name: 'Штаны женские', gender: 'female' },
+        { id: 'bamboo_pants', name: 'Штаны бамбук', gender: 'female' },
+        { id: 'breeches', name: 'Бриджи', gender: 'female' },
+        { id: 'women_shirt', name: 'Рубашка женская', gender: 'female' },
+        { id: 'jackets', name: 'Жакеты', gender: 'female' },
+        { id: 'turtleneck', name: 'Водолазка', gender: 'female' },
+        { id: 'wwo_piece_suit', name: 'Костюм двойка', gender: 'female' },
+        { id: 'women_sweatshirt', name: 'Толстовка женская', gender: 'female' }
+    ];
+
     let allProducts = [];
     let currentGender = null; // 'male' | 'female' | null
-    let currentCategory = 'all';
+    let currentCategoryId = 'all'; // 'all' | 'male_all' | 'female_all' | 'breeches' | и т.д.
 
-    const maleCats = ['Трусы мужские', 'Майки мужские', 'Пижама мужская', 'Футболки мужская', 'Футболка мужская с длин рукав', 'Толстовка мужская', 'Толстова мужская', 'Штаны мужские', 'Шорты мужские'];
-    const femaleCats = ['Трусы женские', 'Майки женские', 'Сарочка', 'Пижама женские', 'Двойка женская', 'Халаты', 'Туника и платья', 'Рубашка женская', 'Костюм двойка', 'Толстовка женская', 'Штаны женские'];
+    // Инициализация бокового меню
+    function initSidebar() {
+        const maleList = document.getElementById('sidebarMale');
+        const femaleList = document.getElementById('sidebarFemale');
+        
+        categories.forEach(cat => {
+            const li = document.createElement('li');
+            li.textContent = cat.name;
+            li.onclick = () => {
+                filterByDirectCategory(cat.id);
+                toggleSidebar();
+            };
+            if (cat.gender === 'male') {
+                maleList.appendChild(li);
+            } else {
+                femaleList.appendChild(li);
+            }
+        });
+    }
 
     window.toggleSidebar = function() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -315,7 +346,7 @@
 
     window.showMainCategories = function() {
         currentGender = null;
-        currentCategory = 'all';
+        currentCategoryId = 'all';
         document.getElementById('mainCategories').style.display = 'flex';
         document.getElementById('subcategoriesView').classList.remove('active');
         document.getElementById('productGrid').classList.remove('active');
@@ -325,7 +356,7 @@
 
     window.selectMainCategory = function(gender) {
         currentGender = gender;
-        currentCategory = 'all';
+        currentCategoryId = gender === 'male' ? 'male_all' : 'female_all';
         
         document.getElementById('mainCategories').style.display = 'none';
         document.getElementById('productGrid').classList.remove('active');
@@ -341,64 +372,81 @@
     function renderSubcategories(gender) {
         const grid = document.getElementById('subcategoriesGrid');
         grid.innerHTML = '';
-        const cats = gender === 'male' ? maleCats : femaleCats;
+        const cats = categories.filter(c => c.gender === gender);
         
         // Кнопка "Все товары" этого пола
         const allCard = document.createElement('div');
         allCard.className = 'subcategory-card all';
         allCard.textContent = '🔥 Все товары';
-        allCard.onclick = () => selectSubcategory('all');
+        allCard.onclick = () => selectSubcategory(gender === 'male' ? 'male_all' : 'female_all');
         grid.appendChild(allCard);
 
         cats.forEach(cat => {
             const card = document.createElement('div');
             card.className = 'subcategory-card';
-            card.textContent = cat;
-            card.onclick = () => selectSubcategory(cat);
+            card.textContent = cat.name;
+            card.onclick = () => selectSubcategory(cat.id);
             grid.appendChild(card);
         });
     }
 
-    window.selectSubcategory = function(category) {
-        currentCategory = category;
+    window.selectSubcategory = function(categoryId) {
+        currentCategoryId = categoryId;
         document.getElementById('subcategoriesView').classList.remove('active');
         document.getElementById('productGrid').classList.add('active');
         
-        const title = category === 'all' ? (currentGender === 'male' ? 'Все мужские' : 'Все женские') : category;
+        let title = 'Товары';
+        if (categoryId === 'male_all') title = 'Все мужские';
+        else if (categoryId === 'female_all') title = 'Все женские';
+        else {
+            const cat = categories.find(c => c.id === categoryId);
+            if (cat) title = cat.name;
+        }
         document.getElementById('headerTitle').textContent = title;
         
         renderProducts();
     };
 
     window.goBack = function() {
-        if (currentCategory !== 'all' && currentGender) {
+        if (currentCategoryId !== 'male_all' && currentCategoryId !== 'female_all' && currentCategoryId !== 'all') {
             // Если мы в товарах конкретной категории, возвращаемся к подкатегориям
-            selectMainCategory(currentGender);
+            if (currentGender) {
+                selectMainCategory(currentGender);
+            } else {
+                showMainCategories();
+            }
         } else {
             // Иначе возвращаемся на главный экран
             showMainCategories();
         }
     };
 
-    window.filterByCategory = function(category) {
-        toggleSidebar(); // закрыть меню
+    window.filterByDirectCategory = function(categoryId) {
+        currentCategoryId = categoryId;
         
-        // Определяем пол по категории для корректной работы кнопки "Назад"
-        if (maleCats.includes(category)) {
+        // Определяем пол для корректной работы кнопки "Назад"
+        if (categoryId === 'male_all' || categories.some(c => c.id === categoryId && c.gender === 'male')) {
             currentGender = 'male';
-        } else if (femaleCats.includes(category)) {
+        } else if (categoryId === 'female_all' || categories.some(c => c.id === categoryId && c.gender === 'female')) {
             currentGender = 'female';
         } else {
             currentGender = null;
         }
-        currentCategory = category;
         
         document.getElementById('mainCategories').style.display = 'none';
         document.getElementById('subcategoriesView').classList.remove('active');
         document.getElementById('productGrid').classList.add('active');
         document.getElementById('backBtn').classList.add('active');
         
-        document.getElementById('headerTitle').textContent = category === 'all' ? 'Все товары' : category;
+        let title = 'Все товары';
+        if (categoryId === 'male_all') title = 'Все мужские';
+        else if (categoryId === 'female_all') title = 'Все женские';
+        else {
+            const cat = categories.find(c => c.id === categoryId);
+            if (cat) title = cat.name;
+        }
+        document.getElementById('headerTitle').textContent = title;
+        
         renderProducts();
     };
 
@@ -442,7 +490,6 @@
                 });
             });
             document.getElementById('loading').style.display = 'none';
-            // Не рендерим сразу, ждём выбора пользователя
         } catch (error) {
             console.error("Ошибка загрузки: ", error);
             document.getElementById('loading').textContent = 'Ошибка загрузки. Проверь название коллекции в Firebase.';
@@ -457,12 +504,16 @@
 
         let filtered = allProducts;
 
-        if (currentCategory !== 'all') {
-            filtered = allProducts.filter(p => (p['id-name'] || '').trim() === currentCategory);
-        } else if (currentGender === 'male') {
-            filtered = allProducts.filter(p => maleCats.includes((p['id-name'] || '').trim()));
-        } else if (currentGender === 'female') {
-            filtered = allProducts.filter(p => femaleCats.includes((p['id-name'] || '').trim()));
+        // СТРОГАЯ ФИЛЬТРАЦИЯ ПО id-name
+        if (currentCategoryId === 'male_all') {
+            const maleIds = categories.filter(c => c.gender === 'male').map(c => c.id);
+            filtered = allProducts.filter(p => maleIds.includes(String(p['id-name']).trim()));
+        } else if (currentCategoryId === 'female_all') {
+            const femaleIds = categories.filter(c => c.gender === 'female').map(c => c.id);
+            filtered = allProducts.filter(p => femaleIds.includes(String(p['id-name']).trim()));
+        } else if (currentCategoryId !== 'all') {
+            // Точное совпадение с id-name (например, 'breeches' === 'breeches')
+            filtered = allProducts.filter(p => String(p['id-name']).trim() === currentCategoryId);
         }
 
         if (filtered.length === 0) {
@@ -474,7 +525,10 @@
             const productId = product.displayId;
             const price = product.price || '0';
             const size = product.size || 'Не указан';
-            const categoryName = (product['id-name'] || 'Категория').trim();
+            
+            // Находим русское название категории для отображения в карточке
+            const catObj = categories.find(c => c.id === String(product['id-name']).trim());
+            const categoryName = catObj ? catObj.name : (product['id-name'] || 'Категория');
 
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -515,7 +569,8 @@
         });
     }
 
-    // Запуск загрузки данных при старте
+    // Запуск
+    initSidebar();
     loadProducts();
 </script>
 
