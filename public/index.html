@@ -1,94 +1,244 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Лидер</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Каталог одежды</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --success: #22c55e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; }
+        
+        header {
+            background: var(--card-bg);
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 8px; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .back-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 8px;
+            font-weight: 600;
+        }
+        .back-btn.active { display: block; }
 
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+        /* Боковое меню */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 85%;
+            max-width: 320px;
+            height: 100vh;
+            background: var(--card-bg);
+            z-index: 100;
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+            display: none;
+        }
+        .sidebar-overlay.active { display: block; }
+        .sidebar h3 { margin: 20px 0 12px; font-size: 14px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+        .sidebar h3:first-child { margin-top: 40px; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { padding: 14px 8px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 15px; transition: background 0.2s; }
+        .sidebar li:active { background: #f1f5f9; }
+        .sidebar li.active { color: var(--primary); font-weight: 700; }
+        .close-sidebar { position: absolute; top: 16px; right: 16px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--text-light); }
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        /* Главный экран с двумя категориями */
+        .main-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 24px;
+            min-height: 85vh;
+            justify-content: center;
+        }
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px 24px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: 3px solid transparent;
+        }
+        .category-card:active { transform: scale(0.97); }
+        .category-card.male { border-color: #3b82f6; color: #1d4ed8; }
+        .category-card.female { border-color: #ec4899; color: #be185d; }
+
+        /* Сетка товаров */
+        .product-grid {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 12px;
+        }
+        .product-grid.active { display: grid; }
+
+        /* Карточка товара */
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+        }
+        .product-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+        .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
+        
+        .product-id {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            text-align: center;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        .product-id.copied {
+            background: var(--success);
+            color: white;
+            animation: blink-green 0.4s ease-in-out 2;
+        }
+        @keyframes blink-green {
+            0%, 100% { background: var(--success); color: white; }
+            50% { background: #86efac; color: #064e3b; }
+        }
+        
+        .product-price { font-size: 18px; font-weight: 800; color: var(--text); text-align: center; }
+        .product-size { 
+            font-size: 13px; 
+            color: var(--text-light); 
+            background: #f1f5f9; 
+            padding: 6px 8px; 
+            border-radius: 8px; 
+            text-align: center;
+            font-weight: 700;
+        }
+        .product-category {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .loading, .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-  <!-- Логотип закреплён сверху -->
-  <img src="logo.png" alt="Логотип" id="siteLogo">
 
-  <!-- Основной контент ниже логотипа -->
-  <div id="mainContent">
-    <!-- Кнопка "О нас" -->
-    <button id="aboutBtn" onclick="toggleAbout()">ℹ</button>
+<header>
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <button class="back-btn" id="backBtn" onclick="showMainCategories()">← Назад</button>
+    <span class="header-title" id="headerTitle">Каталог</span>
+    <div style="width: 40px;"></div>
+</header>
 
-    <!-- Кнопка "Меню" -->
-    <button id="menuBtn" onclick="toggleMenu()">☰</button>
+<!-- Боковое меню -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+    <button class="close-sidebar" onclick="toggleSidebar()">×</button>
+    
+    <h3>Главное</h3>
+    <ul>
+        <li onclick="filterByCategory('all'); toggleSidebar()">Все товары</li>
+    </ul>
 
-    <!-- Блок информации -->
-    <div id="aboutInfo">
-      <h3>О нас</h3>
-      <p><strong>Местоположение:</strong> ТЦ‑Москва, 2Е~94‑96</p>
-      <p>
-        💬 <a href="https://t.me/+ZoBQ86RG69U5MjRi" target="_blank" style="color:orange; text-decoration:none;">
-          Наш Telegram
-        </a>
-      </p>
+    <h3>Мужское</h3>
+    <ul>
+        <li onclick="filterByCategory('Трусы мужские'); toggleSidebar()">Трусы мужские</li>
+        <li onclick="filterByCategory('Майки мужские'); toggleSidebar()">Майки мужские</li>
+        <li onclick="filterByCategory('Пижама мужская'); toggleSidebar()">Пижама мужская</li>
+        <li onclick="filterByCategory('Футболки мужская'); toggleSidebar()">Футболки мужская</li>
+        <li onclick="filterByCategory('Футболка мужская с длин рукав'); toggleSidebar()">Футболка мужская с длин рукав</li>
+        <li onclick="filterByCategory('Толстовка мужская'); toggleSidebar()">Толстовка мужская</li>
+        <li onclick="filterByCategory('Штаны мужские'); toggleSidebar()">Штаны мужские</li>
+        <li onclick="filterByCategory('Шорты мужские'); toggleSidebar()">Шорты мужские</li>
+    </ul>
+
+    <h3>Женское</h3>
+    <ul>
+        <li onclick="filterByCategory('Трусы женские'); toggleSidebar()">Трусы женские</li>
+        <li onclick="filterByCategory('Майки женские'); toggleSidebar()">Майки женские</li>
+        <li onclick="filterByCategory('Сарочка'); toggleSidebar()">Сарочка</li>
+        <li onclick="filterByCategory('Пижама женские'); toggleSidebar()">Пижама женские</li>
+        <li onclick="filterByCategory('Двойка женская'); toggleSidebar()">Двойка женская</li>
+        <li onclick="filterByCategory('Халаты'); toggleSidebar()">Халаты</li>
+        <li onclick="filterByCategory('Туника и платья'); toggleSidebar()">Туника и платья</li>
+        <li onclick="filterByCategory('Рубашка женская'); toggleSidebar()">Рубашка женская</li>
+        <li onclick="filterByCategory('Костюм двойка'); toggleSidebar()">Костюм двойка</li>
+        <li onclick="filterByCategory('Толстовка женская'); toggleSidebar()">Толстовка женская</li>
+        <li onclick="filterByCategory('Штаны женские'); toggleSidebar()">Штаны женские</li>
+    </ul>
+</div>
+
+<!-- Главный экран -->
+<div class="main-categories" id="mainCategories">
+    <div class="category-card male" onclick="selectMainCategory('male')">
+        👨 Мужское
     </div>
-
-    <!-- Боковое меню -->
-    <div id="sideMenu">
-      <h3>Категории</h3>
-      <ul>
-        <li onclick="goToCategory('men_sweatshirt')">Толстовака мужские</li>
-        <li onclick="goToCategory('men_shorts')">Шорты мужские</li>
-        <li onclick="goToCategory('men_trousers')">Штаны мужские</li>
-        <li onclick="goToCategory('men_underwear')">Трусы мужские</li>
-        <li onclick="goToCategory('men_tshirt')">Майки мужские</li>
-        <li onclick="goToCategory('men_pajamas')">Пижамы мужские</li>
-        <li onclick="goToCategory('men_shirts')">Футболки мужские</li>
-        <li onclick="goToCategory('men_noodle_tshirts')">Футболки мужские лапша</li>
-        <li onclick="goToCategory('men_long_sleeve')">Футболки с длинным рукавом</li>
-        <li onclick="goToCategory('women_panties')">Трусы женские</li>
-        <li onclick="goToCategory('women_tshirts')">Майки женские</li>
-        <li onclick="goToCategory('women_tshirt')">Женские футболки</li>
-        <li onclick="goToCategory('sarah')">Сарочка</li>
-        <li onclick="goToCategory('women_pajamas')">Пижама женские</li>
-        <li onclick="goToCategory('robes')">Халаты</li>
-        <li onclick="goToCategory('tunics_and_dresses')">Туника и платья</li>
-        <li onclick="goToCategory('women_deuce')">Двойка женская</li>
-        <li onclick="goToCategory('women_hoodies')">Худи женские</li>
-        <li onclick="goToCategory('angora_trousers')">Брюки ангорка</li>
-        <li onclick="goToCategory('women_trousers')">Штаны женские</li>
-        <li onclick="goToCategory('bamboo_pants')">Штаны бамбук</li>
-        <li onclick="goToCategory('breeches')">Бриджи</li>
-        <li onclick="goToCategory('women_shirt')">Рубашка женская</li>
-        <li onclick="goToCategory('jackets')">Жакеты</li>
-        <li onclick="goToCategory('turtleneck')">Водолазка</li>
-        <li onclick="goToCategory('wwo_piece_suit')">Костюм двойка</li>
-        <li onclick="goToCategory('women_sweatshirt')">Толстовка женская</li>
-      </ul>
-      <button class="back-btn" onclick="toggleMenu()">Закрыть меню</button>
+    <div class="category-card female" onclick="selectMainCategory('female')">
+        👩 Женское
     </div>
+</div>
 
-    <!-- Главные категории -->
-    <div id="mainCatalog" class="catalog">
-      <div class="card" onclick="showSubCatalog('men')">
-        <img src="images/men.png" alt="Мужское">
-        <h3>Мужское</h3>
-      </div>
-      <div class="card" onclick="showSubCatalog('women')">
-        <img src="images/women.png" alt="Женское">
-        <h3>Женское</h3>
-      </div>
-    </div>
+<!-- Сетка товаров -->
+<div class="product-grid" id="productGrid">
+    <div class="loading" id="loading">Загрузка товаров...</div>
+</div>
 
-    <!-- Подкаталоги -->
-    <div id="subCatalog" class="catalog" style="display:none;"></div>
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <!-- Контейнер для товаров -->
-    <div id="products" class="catalog" style="display:none;"></div>
-  </div>
-
-  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsrcT84CP6nZq8YG2KWfcu6TCtQpQoNm0",
       authDomain: "catalog-app-1014f.firebaseapp.com",
@@ -99,217 +249,184 @@
       measurementId: "G-0LQQQ1TBYP"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    const productsContainer = document.getElementById("products");
-    const mainCatalog = document.getElementById("mainCatalog");
-    const subCatalog = document.getElementById("subCatalog");
-    const aboutInfo = document.getElementById("aboutInfo");
-    const sideMenu = document.getElementById("sideMenu");
+    let allProducts = [];
+    let currentFilter = 'all';
 
-    function toggleAbout() {
-      aboutInfo.classList.toggle("show");
-    }
+    // Делаем функции доступными глобально
+    window.toggleSidebar = function() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    };
 
-    function toggleMenu() {
-      sideMenu.classList.toggle("show");
-    }
+    window.showMainCategories = function() {
+        document.getElementById('mainCategories').style.display = 'flex';
+        document.getElementById('productGrid').classList.remove('active');
+        document.getElementById('backBtn').classList.remove('active');
+        document.getElementById('headerTitle').textContent = 'Каталог';
+        currentFilter = 'all';
+        updateSidebarActive();
+    };
 
-    function goToCategory(categoryId) {
-      sideMenu.classList.remove("show");
-      openCategory(categoryId);
-    }
-
-    function showSubCatalog(type) {
-      mainCatalog.style.display = "none";
-      subCatalog.style.display = "flex";
-      subCatalog.innerHTML = "";
-
-      let categories = [];
-      if (type === "men") {
-        categories = [
-          {name: "Толстовака мужская", id: "men_sweatshirt", img: "images/men_sweatshirt.png"},
-          {name: "Шорты мужские", id: "men_shorts", img: "images/men_shorts.png"},
-          {name: "Штаны мужские", id: "men_trousers", img: "images/men_trousers.png"},
-          {name: "Футболки мужские", id: "men_shirts", img: "images/men_shirts.png"},
-          {name: "Трусы мужские", id: "men_underwear", img: "images/men_underwear.png"},
-          {name: "Майки мужские", id: "men_tshirt", img: "images/men_tshirt.png"},
-          {name: "Пижамы мужские", id: "men_pajamas", img: "images/men_pajamas.png"},
-          {name: "Футболки мужские лапша", id: "men_shirts", img: "images/men_shirts.png"},
-          {name: "Футболки мужские", id: "men_noodle_tshirts", img: "images/men_noodle_tshirts.png"},
-          {name: "Футболки с длинным рукавом", id: "men_long_sleeve", img: "images/men_long_sleeve.png"}
-        ];
-      } else {
-        categories = [
-          {name: "Трусы женские", id: "women_panties", img: "images/women_panties.png"},
-          {name: "Женские футболки", id: "women_tshirt", img: "images/women_tshirt.png"},
-          {name: "Майки женские", id: "women_tshirts", img: "images/women_tshirts.png"},
-          {name: "Сарочка", id: "sarah", img: "images/sarah.png"},
-          {name: "Пижама женские", id: "women_pajamas", img: "images/women_pajamas.png"},
-          {name: "Халаты", id: "robes", img: "images/robes.png"},
-          {name: "Туника и платья", id: "tunics_and_dresses", img: "images/tunics_and_dresses.png"},
-          {name: "Двойка женская ", id: "women_deuce", img: "images/women_deuce.png"},
-          {name: "Худи женские", id: "women_hoodies", img: "images/women_hoodies.png"},
-          {name: "Брюки ангорка ", id: "angora_trousers", img: "images/angora_trousers.png"},
-          {name: "Штаны женские", id: "women_trousers", img: "images/women_trousers.png"},
-          {name: "Штаны бамбук", id: "bamboo_pants", img: "images/bamboo_pants.png"},
-          {name: "Бриджи", id: "breeches", img: "images/breeches.png"},
-          {name: "Рубашка женская", id: "women_shirt", img: "images/women_shirt.png"},
-          {name: "Жакеты", id: "jackets", img: "images/jackets.png"},
-          {name: "Водолазка", id: "turtleneck", img: "images/turtleneck.png"},
-          {name: "Костюм двойка", id: "wwo_piece_suit", img: "images/wwo_piece_suit.png"},
-          {name: "Толстовка женская", id: "women_sweatshirt", img: "images/women_sweatshirt.png"}
-        ];
-      }
-
-      categories.forEach(cat => {
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `
-          <img src="${cat.img}" alt="${cat.name}">
-          <h3>${cat.name}</h3>
-        `;
-        div.onclick = () => openCategory(cat.id);
-        subCatalog.appendChild(div);
-      });
-
-      const backBtn = document.createElement("button");
-      backBtn.textContent = "← Назад";
-      backBtn.classList.add("back-btn");
-      backBtn.onclick = () => {
-        subCatalog.style.display = "none";
-        mainCatalog.style.display = "flex";
-      };
-      subCatalog.appendChild(backBtn);
-    }
-
-    async function openCategory(categoryId) {
-      subCatalog.style.display = "none";
-      productsContainer.style.display = "flex";
-      productsContainer.innerHTML = "";
-
-      const snapshot = await db.collection("products").where("id-name", "==", categoryId).get();
-      snapshot.forEach(doc => {
-        renderProduct(doc);
-      });
-
-      const backBtn = document.createElement("button");
-      backBtn.textContent = "← Назад к подкатегориям";
-      backBtn.classList.add("back-btn");
-      backBtn.onclick = () => {
-        productsContainer.style.display = "none";
-        subCatalog.style.display = "flex";
-      };
-      productsContainer.appendChild(backBtn);
-    }
-
-    // --- УМНАЯ ПРОВЕРКА ФОРМАТОВ В ПАПКЕ images ---
-    function renderProduct(doc) {
-      const data = doc.data();
-      const productDiv = document.createElement("div");
-      productDiv.classList.add("card");
-
-      const imgElement = document.createElement("img");
-      
-      const checkImage = (ext) => {
-        return new Promise((resolve) => {
-          const tempImg = new Image();
-          tempImg.onload = () => resolve(true);
-          tempImg.onerror = () => resolve(false);
-          tempImg.src = `images/${data.id}.${ext}`;
-        });
-      };
-
-      (async () => {
-        let finalSrc = '';
-        if (await checkImage('jpg')) {
-          finalSrc = `images/${data.id}.jpg`;
-        } else if (await checkImage('jpeg')) {
-          finalSrc = `images/${data.id}.jpeg`;
-        } else {
-          console.warn(`Фото для ID ${data.id} не найдено ни в jpg, ни в jpeg`);
-          finalSrc = 'placeholder.png'; 
-        }
-        imgElement.src = finalSrc;
-      })();
-      
-      productDiv.insertBefore(imgElement, productDiv.firstChild);
-      productsContainer.appendChild(productDiv);
-
-
-        // Сохранение по нажатию Enter
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            input.blur(); // Это вызовет событие 'blur' и запустит saveNewPrice
-          }
-        });
+    window.selectMainCategory = function(gender) {
+        document.getElementById('mainCategories').style.display = 'none';
+        document.getElementById('productGrid').classList.add('active');
+        document.getElementById('backBtn').classList.add('active');
         
-        // Сохранение при клике вне поля ввода
-        input.addEventListener('blur', saveNewPrice);
+        if (gender === 'male') {
+            document.getElementById('headerTitle').textContent = 'Мужское';
+            currentFilter = 'male';
+        } else {
+            document.getElementById('headerTitle').textContent = 'Женское';
+            currentFilter = 'female';
+        }
+        updateSidebarActive();
+        renderProducts();
+    };
 
-        this.style.display = 'none';
-        this.parentNode.insertBefore(input, this);
-        input.focus();
-      });
+    window.filterByCategory = function(category) {
+        document.getElementById('mainCategories').style.display = 'none';
+        document.getElementById('productGrid').classList.add('active');
+        document.getElementById('backBtn').classList.add('active');
+        document.getElementById('headerTitle').textContent = category;
+        currentFilter = category;
+        updateSidebarActive();
+        renderProducts();
+    };
+
+    function updateSidebarActive() {
+        document.querySelectorAll('.sidebar li').forEach(li => {
+            li.classList.remove('active');
+            if (currentFilter === 'all' && li.textContent === 'Все товары') {
+                li.classList.add('active');
+            } else if (li.textContent === currentFilter) {
+                li.classList.add('active');
+            }
+        });
     }
-    // ----------------------------------------------------
 
-    function copyId(id) {
-      navigator.clipboard.writeText(id);
-      const btn = document.getElementById("btn-" + id);
-      if (btn) {
-        btn.classList.add("green");
-        setTimeout(() => btn.classList.remove("green"), 1000);
-      }
+    window.copyId = function(element, id) {
+        navigator.clipboard.writeText(id).then(() => {
+            element.classList.add('copied');
+            setTimeout(() => {
+                element.classList.remove('copied');
+            }, 800);
+        }).catch(err => {
+            console.error('Не удалось скопировать: ', err);
+        });
+    };
+
+    window.setProductImage = function(imgElement, productId) {
+        const cleanId = String(productId).trim();
+        const jpgUrl = `images/${cleanId}.jpg`;
+        const jpegUrl = `images/${cleanId}.jpeg`;
+        
+        imgElement.src = jpgUrl;
+        imgElement.onerror = function() {
+            imgElement.src = jpegUrl;
+            imgElement.onerror = function() {
+                // Заглушка, если нет ни jpg, ни jpeg
+                imgElement.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="16">Нет фото</text></svg>';
+            };
+        };
+    };
+
+    async function loadProducts() {
+        try {
+            // ВНИМАНИЕ: Если твоя коллекция называется не "products", поменяй это слово здесь
+            const querySnapshot = await getDocs(collection(db, "products"));
+            allProducts = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                // Берём поле 'id' из данных, либо ID самого документа
+                const productId = data.id || doc.id;
+                allProducts.push({
+                    ...data,
+                    displayId: String(productId).trim()
+                });
+            });
+            document.getElementById('loading').style.display = 'none';
+            renderProducts();
+        } catch (error) {
+            console.error("Ошибка загрузки: ", error);
+            document.getElementById('loading').textContent = 'Ошибка загрузки. Проверь интернет или название коллекции в Firebase.';
+        }
     }
 
-    // Поиск по ID
-    async function searchProduct() {
-      const searchId = document.getElementById("searchInput").value.trim();
-      if (!searchId) {
-        alert("Введите ID товара!");
-        return;
-      }
+    function renderProducts() {
+        const grid = document.getElementById('productGrid');
+        const loadingDiv = document.getElementById('loading');
+        grid.innerHTML = '';
+        grid.appendChild(loadingDiv);
 
-      try {
-        const snapshot = await db.collection("products").where("id", "==", searchId).get();
-        if (snapshot.empty) {
-          alert("Товар не найден!");
-          return;
+        const maleCats = ['Трусы мужские', 'Майки мужские', 'Пижама мужская', 'Футболки мужская', 'Футболка мужская с длин рукав', 'Толстовка мужская', 'Толстова мужская', 'Штаны мужские', 'Шорты мужские'];
+        const femaleCats = ['Трусы женские', 'Майки женские', 'Сарочка', 'Пижама женские', 'Двойка женская', 'Халаты', 'Туника и платья', 'Рубашка женская', 'Костюм двойка', 'Толстовка женская', 'Штаны женские'];
+
+        let filtered = allProducts;
+
+        if (currentFilter === 'male') {
+            filtered = allProducts.filter(p => maleCats.includes((p['id-name'] || '').trim()));
+        } else if (currentFilter === 'female') {
+            filtered = allProducts.filter(p => femaleCats.includes((p['id-name'] || '').trim()));
+        } else if (currentFilter !== 'all') {
+            filtered = allProducts.filter(p => (p['id-name'] || '').trim() === currentFilter);
         }
 
-        // Скрываем каталоги, показываем результаты поиска
-        mainCatalog.style.display = "none";
-        subCatalog.style.display = "none";
-        productsContainer.style.display = "flex";
-        productsContainer.innerHTML = "";
+        if (filtered.length === 0) {
+            grid.innerHTML += '<div class="empty-state">В этой категории пока нет товаров</div>';
+            return;
+        }
 
-        snapshot.forEach(doc => {
-          renderProduct(doc);
+        filtered.forEach(product => {
+            const productId = product.displayId;
+            const price = product.price || '0';
+            const size = product.size || 'Не указан';
+            const categoryName = (product['id-name'] || 'Категория').trim();
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            const img = document.createElement('img');
+            img.className = 'product-image';
+            img.alt = productId;
+            setTimeout(() => window.setProductImage(img, productId), 0);
+
+            const info = document.createElement('div');
+            info.className = 'product-info';
+
+            const idDiv = document.createElement('div');
+            idDiv.className = 'product-id';
+            idDiv.textContent = `Арт: ${productId}`;
+            idDiv.onclick = function() { window.copyId(this, productId); };
+
+            const catDiv = document.createElement('div');
+            catDiv.className = 'product-category';
+            catDiv.textContent = categoryName;
+
+            const priceDiv = document.createElement('div');
+            priceDiv.className = 'product-price';
+            priceDiv.textContent = `${price} сум`;
+
+            const sizeDiv = document.createElement('div');
+            sizeDiv.className = 'product-size';
+            sizeDiv.textContent = `Размер: ${size}`;
+
+            info.appendChild(idDiv);
+            info.appendChild(catDiv);
+            info.appendChild(priceDiv);
+            info.appendChild(sizeDiv);
+
+            card.appendChild(img);
+            card.appendChild(info);
+            grid.appendChild(card);
         });
-
-        // Кнопка возврата из поиска
-        const backBtn = document.createElement("button");
-        backBtn.textContent = "← Назад в каталог";
-        backBtn.classList.add("back-btn");
-        backBtn.onclick = () => {
-          productsContainer.style.display = "none";
-          mainCatalog.style.display = "flex";
-          document.getElementById("searchInput").value = "";
-        };
-        productsContainer.appendChild(backBtn);
-
-      } catch (error) {
-        console.error("Ошибка при поиске:", error);
-        alert("Ошибка при поиске. Подробности смотри в консоли.");
-      }
     }
-    
-    // Поиск по нажатию Enter в поле ввода
-    document.getElementById("searchInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") searchProduct();
-    });
-  </script>
+
+    // Запуск
+    loadProducts();
+</script>
+
 </body>
 </html>
