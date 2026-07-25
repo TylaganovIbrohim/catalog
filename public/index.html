@@ -26,25 +26,29 @@
             top: 0;
             z-index: 50;
             border-bottom: 1px solid var(--border);
-            display: flex;
+            display: grid;
+            grid-template-columns: 80px 1fr 80px;
             align-items: center;
-            gap: 12px;
         }
+        .header-left { display: flex; gap: 8px; align-items: center; }
+        .header-title { font-size: 18px; font-weight: 700; color: var(--primary); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .header-right { display: flex; justify-content: flex-end; align-items: center; }
+
+        .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 4px; color: var(--text); }
+        .back-btn {
+            visibility: hidden; /* Скрыта, но занимает место для идеального центрирования заголовка */
+            font-size: 20px; background: none; border: none; color: var(--primary);
+            cursor: pointer; padding: 4px; font-weight: 700;
+        }
+        .back-btn.active { visibility: visible; }
+
         .info-btn {
             width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg);
             border: 1px solid var(--primary); color: var(--primary); font-size: 18px; font-weight: 900;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: all 0.2s; flex-shrink: 0;
+            transition: all 0.2s;
         }
         .info-btn:active { background: var(--primary); color: white; transform: scale(0.9); }
-        
-        .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 4px; color: var(--text); flex-shrink: 0; }
-        .header-title { font-size: 18px; font-weight: 700; color: var(--primary); text-align: center; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .back-btn {
-            display: none; background: none; border: none; font-size: 20px; color: var(--primary);
-            cursor: pointer; padding: 4px; font-weight: 700; flex-shrink: 0;
-        }
-        .back-btn.active { display: block; }
 
         /* Модальное окно "О нас" */
         .modal-overlay {
@@ -91,18 +95,43 @@
             min-height: 85vh; justify-content: center;
         }
         .category-card {
-            background: var(--card-bg); border-radius: 20px; padding: 40px 24px; text-align: center;
-            font-size: 24px; font-weight: 800; border: 2px solid var(--primary); color: var(--text);
-            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px 24px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            border: 2px solid var(--primary);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
         }
-        .category-card:active { transform: scale(0.97); background: var(--primary); color: white; }
+        .category-bg-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.25;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .category-text {
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+        .category-card:active { transform: scale(0.97); }
+        .category-card:active .category-bg-img { opacity: 0.4; transform: scale(1.05); }
 
         /* Экран подкатегорий (ЛЕНТА) */
         .subcategories-view { display: none; padding: 16px; }
         .subcategories-view.active { display: block; }
-        .subcategories-grid {
-            display: flex; flex-direction: column; gap: 16px;
-        }
+        .subcategories-grid { display: flex; flex-direction: column; gap: 16px; }
         .subcategory-card {
             background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
             padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer;
@@ -129,12 +158,10 @@
         .product-card {
             background: var(--card-bg); border-radius: 16px; overflow: hidden;
             border: 1px solid var(--border); display: flex; flex-direction: column;
-            content-visibility: auto; contain-intrinsic-size: 0 300px; /* Оптимизация рендеринга */
+            content-visibility: auto; contain-intrinsic-size: 0 300px;
             animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0;
         }
-        .product-image {
-            width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #27272a;
-        }
+        .product-image { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #27272a; }
         .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
         
         .product-id {
@@ -167,16 +194,23 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <button class="info-btn" onclick="toggleAbout()">i</button>
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+    <div class="header-left">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+    </div>
     <span class="header-title" id="headerTitle">Каталог</span>
-    <div style="width: 36px; flex-shrink: 0;"></div> <!-- Балансировка хедера -->
+    <div class="header-right">
+        <button class="info-btn" onclick="toggleAbout()">i</button>
+    </div>
 </header>
 
 <!-- Модальное окно "О нас" -->
@@ -207,8 +241,14 @@
 
 <!-- Главный экран -->
 <div class="main-categories" id="mainCategories">
-    <div class="category-card" onclick="selectMainCategory('male')">МУЖСКОЕ</div>
-    <div class="category-card" onclick="selectMainCategory('female')">ЖЕНСКОЕ</div>
+    <div class="category-card" onclick="selectMainCategory('male')">
+        <img src="images/men.png" class="category-bg-img" alt="Мужское" onerror="this.style.opacity='0'">
+        <span class="category-text">МУЖСКОЕ</span>
+    </div>
+    <div class="category-card" onclick="selectMainCategory('female')">
+        <img src="images/women.png" class="category-bg-img" alt="Женское" onerror="this.style.opacity='0'">
+        <span class="category-text">ЖЕНСКОЕ</span>
+    </div>
 </div>
 
 <!-- Экран подкатегорий -->
@@ -457,7 +497,6 @@
             return;
         }
 
-        // ОПТИМИЗАЦИЯ: DocumentFragment для мгновенной вставки в DOM
         const fragment = document.createDocumentFragment();
         filtered.forEach((product, index) => {
             const productId = product.displayId;
@@ -466,11 +505,11 @@
 
             const card = document.createElement('div');
             card.className = 'product-card';
-            card.style.animationDelay = `${Math.min(index * 0.04, 0.5)}s`; // Ограничиваем задержку анимации для скорости
+            card.style.animationDelay = `${Math.min(index * 0.04, 0.5)}s`;
 
             const img = document.createElement('img');
             img.className = 'product-image';
-            img.loading = 'lazy'; // ОПТИМИЗАЦИЯ: Ленивая загрузка
+            img.loading = 'lazy';
             img.alt = productId;
             setTimeout(() => window.setProductImage(img, productId), 0);
 
@@ -484,14 +523,13 @@
 
             const priceDiv = document.createElement('div');
             priceDiv.className = 'product-price';
-            priceDiv.textContent = `${price} $`; // ДОЛЛАРЫ
+            priceDiv.textContent = `${price} $`;
 
             const sizeDiv = document.createElement('div');
             sizeDiv.className = 'product-size';
             sizeDiv.textContent = `Размер: ${size}`;
 
             info.appendChild(idDiv);
-            // Категория убрана из карточки по требованию
             info.appendChild(priceDiv);
             info.appendChild(sizeDiv);
 
