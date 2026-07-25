@@ -233,55 +233,10 @@
         }
         imgElement.src = finalSrc;
       })();
-
-      // ИЗМЕНЕНО: Цена теперь кликабельна для редактирования
-      productDiv.innerHTML = `
-        <p><b>Размер: ${data.size}</b></p>
-        <div class="buttons">
-          <span class="editable-price" data-docid="${doc.id}" data-price="${data.price}">$${data.price}</span>
-          <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
-        </div>
-      `;
       
       productDiv.insertBefore(imgElement, productDiv.firstChild);
       productsContainer.appendChild(productDiv);
 
-      // Логика редактирования цены
-      const priceSpan = productDiv.querySelector('.editable-price');
-      priceSpan.addEventListener('click', function() {
-        const currentPrice = this.getAttribute('data-price');
-        const docId = this.getAttribute('data-docid');
-        
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.value = currentPrice;
-        input.style.width = '60px';
-        input.style.padding = '10px';
-        input.style.borderRadius = '8px';
-        input.style.border = '2px solid orange';
-        input.style.background = '#222';
-        input.style.color = '#fff';
-        input.style.textAlign = 'center';
-        input.style.fontSize = '14px';
-        input.style.fontWeight = 'bold';
-        input.style.outline = 'none';
-
-        const saveNewPrice = async () => {
-          const newPrice = input.value;
-          if (newPrice !== currentPrice && newPrice !== '') {
-            try {
-              // Обновляем цену в Firebase
-              await db.collection("products").doc(docId).update({ price: newPrice });
-              this.innerText = '$' + newPrice;
-              this.setAttribute('data-price', newPrice);
-            } catch (e) {
-              console.error("Ошибка обновления:", e);
-              alert("Не удалось обновить цену");
-            }
-          }
-          this.style.display = 'inline-block';
-          input.remove();
-        };
 
         // Сохранение по нажатию Enter
         input.addEventListener('keydown', (e) => {
