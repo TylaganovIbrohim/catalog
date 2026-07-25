@@ -88,6 +88,12 @@
     <div id="products" class="catalog" style="display:none;"></div>
   </div>
 
+  <!-- ПОИСКОВИК СНИЗУ (Добавлено) -->
+  <div id="searchBox">
+    <input type="text" id="searchInput" placeholder="Введите ID товара">
+    <button onclick="searchProduct()">Найти</button>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsrcT84CP6nZq8YG2KWfcu6TCtQpQoNm0",
@@ -217,7 +223,6 @@
           const tempImg = new Image();
           tempImg.onload = () => resolve(true);
           tempImg.onerror = () => resolve(false);
-          // ИЗМЕНЕНО: теперь ищем в папке images
           tempImg.src = `images/${data.id}.${ext}`;
         });
       };
@@ -235,29 +240,71 @@
         imgElement.src = finalSrc;
       })();
 
+      // ИЗМЕНЕНО: Цена теперь кликабельна для редактирования
       productDiv.innerHTML = `
         <p><b>Размер: ${data.size}</b></p>
         <div class="buttons">
-          <button>$${data.price}</button>
+          <span class="editable-price" data-docid="${doc.id}" data-price="${data.price}">$${data.price}</span>
           <button id="btn-${data.id}" onclick="copyId('${data.id}')">ID: ${data.id}</button>
         </div>
       `;
       
       productDiv.insertBefore(imgElement, productDiv.firstChild);
       productsContainer.appendChild(productDiv);
+
+      // Логика редактирования цены
+      const priceSpan = productDiv.querySelector('.editable-price');
+      priceSpan.addEventListener('click', function() {
+        const currentPrice = this.getAttribute('data-price');
+        const docId = this.getAttribute('data-docid');
+        
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = currentPrice;
+        input.style.width = '60px';
+        input.style.padding = '10px';
+        input.style.borderRadius = '8px';
+        input.style.border = '2px solid orange';
+        input.style.background = '#222';
+        input.style.color = '#fff';
+        input.style.textAlign = 'center';
+        input.style.fontSize = '14px';
+        input.style.fontWeight = 'bold';
+        input.style.outline = 'none';
+
+        const saveNewPrice = async () => {
+          const newPrice = input.value;
+          if (newPrice !== currentPrice && newPrice !== '') {
+            try {
+              // Обновляем цену в Firebase
+              await db.collection("products").doc(docId).update({ price: newPrice });
+              this.innerText = '$' + newPrice;
+              this.setAttribute('data-price', newPrice);
+            } catch (e) {
+              console.error("Ошибка обновления:", e);
+              alert("Не удалось обновить цену");
+            }
+          }
+          this.style.display = 'inline-block';
+          input.remove();
+        };
+
+        // Сохранение по нажатию Enter
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            input.blur(); // Это вызовет событие 'blur' и запустит saveNewPrice
+          }
+        });
+        
+        // Сохранение при клике вне поля ввода
+        input.addEventListener('blur', saveNewPrice);
+
+        this.style.display = 'none';
+        this.parentNode.insertBefore(input, this);
+        input.focus();
+      });
     }
     // ----------------------------------------------------
-
-    async function savePrice(customId) {
-      const newPrice = document.getElementById("price-" + customId).value;
-      const snapshot = await db.collection("products").where("id", "==", customId).get();
-      snapshot.forEach(async (doc) => {
-        await db.collection("products").doc(doc.id).update({
-          price: newPrice
-        });
-      });
-      alert("Цена обновлена!");
-    }
 
     function copyId(id) {
       navigator.clipboard.writeText(id);
@@ -268,6 +315,7 @@
       }
     }
 
+    // Поиск по ID
     async function searchProduct() {
       const searchId = document.getElementById("searchInput").value.trim();
       if (!searchId) {
@@ -282,17 +330,37 @@
           return;
         }
 
+        // Скрываем каталоги, показываем результаты поиска
+        mainCatalog.style.display = "none";
+        subCatalog.style.display = "none";
         productsContainer.style.display = "flex";
         productsContainer.innerHTML = "";
 
         snapshot.forEach(doc => {
           renderProduct(doc);
         });
+
+        // Кнопка возврата из поиска
+        const backBtn = document.createElement("button");
+        backBtn.textContent = "← Назад в каталог";
+        backBtn.classList.add("back-btn");
+        backBtn.onclick = () => {
+          productsContainer.style.display = "none";
+          mainCatalog.style.display = "flex";
+          document.getElementById("searchInput").value = "";
+        };
+        productsContainer.appendChild(backBtn);
+
       } catch (error) {
         console.error("Ошибка при поиске:", error);
         alert("Ошибка при поиске. Подробности смотри в консоли.");
       }
     }
+    
+    // Поиск по нажатию Enter в поле ввода
+    document.getElementById("searchInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchProduct();
+    });
   </script>
 </body>
 </html>
