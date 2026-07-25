@@ -6,29 +6,32 @@
     <title>Каталог одежды</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --success: #22c55e;
+            --bg: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --primary: #f97316;
+            --primary-dark: #ea580c;
+            --text: #f8fafc;
+            --text-light: #a1a1aa;
+            --success: #4ade80;
+            --border: #27272a;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; }
         
         header {
-            background: var(--card-bg);
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
             padding: 16px;
             position: sticky;
             top: 0;
             z-index: 50;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 8px; }
-        .header-title { font-size: 18px; font-weight: 600; }
+        .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 8px; color: var(--text); }
+        .header-title { font-size: 18px; font-weight: 700; color: var(--primary); }
         .back-btn {
             display: none;
             background: none;
@@ -37,7 +40,7 @@
             color: var(--primary);
             cursor: pointer;
             padding: 8px;
-            font-weight: 600;
+            font-weight: 700;
         }
         .back-btn.active { display: block; }
 
@@ -52,28 +55,29 @@
             background: var(--card-bg);
             z-index: 100;
             transition: left 0.3s ease;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            box-shadow: 4px 0 16px rgba(0,0,0,0.5);
             overflow-y: auto;
             padding: 20px;
+            border-right: 1px solid var(--border);
         }
         .sidebar.active { left: 0; }
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             z-index: 90;
             display: none;
+            backdrop-filter: blur(2px);
         }
         .sidebar-overlay.active { display: block; }
-        .sidebar h3 { margin: 20px 0 12px; font-size: 14px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+        .sidebar h3 { margin: 24px 0 12px; font-size: 13px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
         .sidebar h3:first-child { margin-top: 40px; }
         .sidebar ul { list-style: none; }
-        .sidebar li { padding: 14px 8px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 15px; transition: background 0.2s; }
-        .sidebar li:active { background: #f1f5f9; }
-        .sidebar li.active { color: var(--primary); font-weight: 700; }
+        .sidebar li { padding: 14px 12px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 15px; transition: all 0.2s; border-radius: 8px; }
+        .sidebar li:active { background: var(--primary); color: white; }
         .close-sidebar { position: absolute; top: 16px; right: 16px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--text-light); }
 
-        /* Главный экран с двумя категориями */
+        /* Главный экран */
         .main-categories {
             display: flex;
             flex-direction: column;
@@ -87,16 +91,53 @@
             border-radius: 20px;
             padding: 40px 24px;
             text-align: center;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 2px solid var(--primary);
+            color: var(--text);
             cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
-            border: 3px solid transparent;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
         }
-        .category-card:active { transform: scale(0.97); }
-        .category-card.male { border-color: #3b82f6; color: #1d4ed8; }
-        .category-card.female { border-color: #ec4899; color: #be185d; }
+        .category-card:active { transform: scale(0.97); background: var(--primary); color: white; }
+
+        /* Экран подкатегорий */
+        .subcategories-view {
+            display: none;
+            padding: 16px;
+        }
+        .subcategories-view.active { display: block; }
+        .subcategories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .subcategory-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 24px 12px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .subcategory-card:active { 
+            border-color: var(--primary); 
+            background: var(--primary); 
+            color: white;
+            transform: scale(0.96);
+        }
+        .subcategory-card.all {
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+        .subcategory-card.all:active {
+            background: #fbbf24;
+            color: #0f0f0f;
+        }
 
         /* Сетка товаров */
         .product-grid {
@@ -112,7 +153,7 @@
             background: var(--card-bg);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
         }
@@ -120,29 +161,31 @@
             width: 100%;
             aspect-ratio: 3/4;
             object-fit: cover;
-            background: #e2e8f0;
+            background: #27272a;
         }
         .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
         
         .product-id {
             font-size: 15px;
             font-weight: 800;
-            color: var(--text);
+            color: var(--primary);
             cursor: pointer;
-            padding: 6px 8px;
+            padding: 8px;
             border-radius: 8px;
-            background: #f1f5f9;
+            background: rgba(249, 115, 22, 0.1);
             text-align: center;
             transition: all 0.3s;
             user-select: none;
+            border: 1px solid rgba(249, 115, 22, 0.3);
         }
         .product-id.copied {
             background: var(--success);
-            color: white;
+            color: #0f0f0f;
+            border-color: var(--success);
             animation: blink-green 0.4s ease-in-out 2;
         }
         @keyframes blink-green {
-            0%, 100% { background: var(--success); color: white; }
+            0%, 100% { background: var(--success); color: #0f0f0f; }
             50% { background: #86efac; color: #064e3b; }
         }
         
@@ -150,8 +193,8 @@
         .product-size { 
             font-size: 13px; 
             color: var(--text-light); 
-            background: #f1f5f9; 
-            padding: 6px 8px; 
+            background: #27272a; 
+            padding: 8px; 
             border-radius: 8px; 
             text-align: center;
             font-weight: 700;
@@ -176,7 +219,7 @@
 
 <header>
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <button class="back-btn" id="backBtn" onclick="showMainCategories()">← Назад</button>
+    <button class="back-btn" id="backBtn" onclick="goBack()">← Назад</button>
     <span class="header-title" id="headerTitle">Каталог</span>
     <div style="width: 40px;"></div>
 </header>
@@ -186,47 +229,53 @@
 <div class="sidebar" id="sidebar">
     <button class="close-sidebar" onclick="toggleSidebar()">×</button>
     
-    <h3>Главное</h3>
+    <h3>Навигация</h3>
     <ul>
-        <li onclick="filterByCategory('all'); toggleSidebar()">Все товары</li>
+        <li onclick="filterByCategory('all')">🔥 Все товары</li>
     </ul>
 
     <h3>Мужское</h3>
     <ul>
-        <li onclick="filterByCategory('Трусы мужские'); toggleSidebar()">Трусы мужские</li>
-        <li onclick="filterByCategory('Майки мужские'); toggleSidebar()">Майки мужские</li>
-        <li onclick="filterByCategory('Пижама мужская'); toggleSidebar()">Пижама мужская</li>
-        <li onclick="filterByCategory('Футболки мужская'); toggleSidebar()">Футболки мужская</li>
-        <li onclick="filterByCategory('Футболка мужская с длин рукав'); toggleSidebar()">Футболка мужская с длин рукав</li>
-        <li onclick="filterByCategory('Толстовка мужская'); toggleSidebar()">Толстовка мужская</li>
-        <li onclick="filterByCategory('Штаны мужские'); toggleSidebar()">Штаны мужские</li>
-        <li onclick="filterByCategory('Шорты мужские'); toggleSidebar()">Шорты мужские</li>
+        <li onclick="filterByCategory('Трусы мужские')">Трусы мужские</li>
+        <li onclick="filterByCategory('Майки мужские')">Майки мужские</li>
+        <li onclick="filterByCategory('Пижама мужская')">Пижама мужская</li>
+        <li onclick="filterByCategory('Футболки мужская')">Футболки мужская</li>
+        <li onclick="filterByCategory('Футболка мужская с длин рукав')">Футболка мужская с длин рукав</li>
+        <li onclick="filterByCategory('Толстовка мужская')">Толстовка мужская</li>
+        <li onclick="filterByCategory('Толстова мужская')">Толстова мужская</li>
+        <li onclick="filterByCategory('Штаны мужские')">Штаны мужские</li>
+        <li onclick="filterByCategory('Шорты мужские')">Шорты мужские</li>
     </ul>
 
     <h3>Женское</h3>
     <ul>
-        <li onclick="filterByCategory('Трусы женские'); toggleSidebar()">Трусы женские</li>
-        <li onclick="filterByCategory('Майки женские'); toggleSidebar()">Майки женские</li>
-        <li onclick="filterByCategory('Сарочка'); toggleSidebar()">Сарочка</li>
-        <li onclick="filterByCategory('Пижама женские'); toggleSidebar()">Пижама женские</li>
-        <li onclick="filterByCategory('Двойка женская'); toggleSidebar()">Двойка женская</li>
-        <li onclick="filterByCategory('Халаты'); toggleSidebar()">Халаты</li>
-        <li onclick="filterByCategory('Туника и платья'); toggleSidebar()">Туника и платья</li>
-        <li onclick="filterByCategory('Рубашка женская'); toggleSidebar()">Рубашка женская</li>
-        <li onclick="filterByCategory('Костюм двойка'); toggleSidebar()">Костюм двойка</li>
-        <li onclick="filterByCategory('Толстовка женская'); toggleSidebar()">Толстовка женская</li>
-        <li onclick="filterByCategory('Штаны женские'); toggleSidebar()">Штаны женские</li>
+        <li onclick="filterByCategory('Трусы женские')">Трусы женские</li>
+        <li onclick="filterByCategory('Майки женские')">Майки женские</li>
+        <li onclick="filterByCategory('Сарочка')">Сарочка</li>
+        <li onclick="filterByCategory('Пижама женские')">Пижама женские</li>
+        <li onclick="filterByCategory('Двойка женская')">Двойка женская</li>
+        <li onclick="filterByCategory('Халаты')">Халаты</li>
+        <li onclick="filterByCategory('Туника и платья')">Туника и платья</li>
+        <li onclick="filterByCategory('Рубашка женская')">Рубашка женская</li>
+        <li onclick="filterByCategory('Костюм двойка')">Костюм двойка</li>
+        <li onclick="filterByCategory('Толстовка женская')">Толстовка женская</li>
+        <li onclick="filterByCategory('Штаны женские')">Штаны женские</li>
     </ul>
 </div>
 
 <!-- Главный экран -->
 <div class="main-categories" id="mainCategories">
-    <div class="category-card male" onclick="selectMainCategory('male')">
-        👨 Мужское
+    <div class="category-card" onclick="selectMainCategory('male')">
+        👨 МУЖСКОЕ
     </div>
-    <div class="category-card female" onclick="selectMainCategory('female')">
-        👩 Женское
+    <div class="category-card" onclick="selectMainCategory('female')">
+        👩 ЖЕНСКОЕ
     </div>
+</div>
+
+<!-- Экран подкатегорий -->
+<div class="subcategories-view" id="subcategoriesView">
+    <div class="subcategories-grid" id="subcategoriesGrid"></div>
 </div>
 
 <!-- Сетка товаров -->
@@ -253,65 +302,113 @@
     const db = getFirestore(app);
 
     let allProducts = [];
-    let currentFilter = 'all';
+    let currentGender = null; // 'male' | 'female' | null
+    let currentCategory = 'all';
 
-    // Делаем функции доступными глобально
+    const maleCats = ['Трусы мужские', 'Майки мужские', 'Пижама мужская', 'Футболки мужская', 'Футболка мужская с длин рукав', 'Толстовка мужская', 'Толстова мужская', 'Штаны мужские', 'Шорты мужские'];
+    const femaleCats = ['Трусы женские', 'Майки женские', 'Сарочка', 'Пижама женские', 'Двойка женская', 'Халаты', 'Туника и платья', 'Рубашка женская', 'Костюм двойка', 'Толстовка женская', 'Штаны женские'];
+
     window.toggleSidebar = function() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('sidebarOverlay').classList.toggle('active');
     };
 
     window.showMainCategories = function() {
+        currentGender = null;
+        currentCategory = 'all';
         document.getElementById('mainCategories').style.display = 'flex';
+        document.getElementById('subcategoriesView').classList.remove('active');
         document.getElementById('productGrid').classList.remove('active');
         document.getElementById('backBtn').classList.remove('active');
         document.getElementById('headerTitle').textContent = 'Каталог';
-        currentFilter = 'all';
-        updateSidebarActive();
     };
 
     window.selectMainCategory = function(gender) {
+        currentGender = gender;
+        currentCategory = 'all';
+        
         document.getElementById('mainCategories').style.display = 'none';
-        document.getElementById('productGrid').classList.add('active');
+        document.getElementById('productGrid').classList.remove('active');
+        document.getElementById('subcategoriesView').classList.add('active');
         document.getElementById('backBtn').classList.add('active');
         
-        if (gender === 'male') {
-            document.getElementById('headerTitle').textContent = 'Мужское';
-            currentFilter = 'male';
-        } else {
-            document.getElementById('headerTitle').textContent = 'Женское';
-            currentFilter = 'female';
-        }
-        updateSidebarActive();
+        const title = gender === 'male' ? 'Мужские категории' : 'Женские категории';
+        document.getElementById('headerTitle').textContent = title;
+        
+        renderSubcategories(gender);
+    };
+
+    function renderSubcategories(gender) {
+        const grid = document.getElementById('subcategoriesGrid');
+        grid.innerHTML = '';
+        const cats = gender === 'male' ? maleCats : femaleCats;
+        
+        // Кнопка "Все товары" этого пола
+        const allCard = document.createElement('div');
+        allCard.className = 'subcategory-card all';
+        allCard.textContent = '🔥 Все товары';
+        allCard.onclick = () => selectSubcategory('all');
+        grid.appendChild(allCard);
+
+        cats.forEach(cat => {
+            const card = document.createElement('div');
+            card.className = 'subcategory-card';
+            card.textContent = cat;
+            card.onclick = () => selectSubcategory(cat);
+            grid.appendChild(card);
+        });
+    }
+
+    window.selectSubcategory = function(category) {
+        currentCategory = category;
+        document.getElementById('subcategoriesView').classList.remove('active');
+        document.getElementById('productGrid').classList.add('active');
+        
+        const title = category === 'all' ? (currentGender === 'male' ? 'Все мужские' : 'Все женские') : category;
+        document.getElementById('headerTitle').textContent = title;
+        
         renderProducts();
+    };
+
+    window.goBack = function() {
+        if (currentCategory !== 'all' && currentGender) {
+            // Если мы в товарах конкретной категории, возвращаемся к подкатегориям
+            selectMainCategory(currentGender);
+        } else {
+            // Иначе возвращаемся на главный экран
+            showMainCategories();
+        }
     };
 
     window.filterByCategory = function(category) {
+        toggleSidebar(); // закрыть меню
+        
+        // Определяем пол по категории для корректной работы кнопки "Назад"
+        if (maleCats.includes(category)) {
+            currentGender = 'male';
+        } else if (femaleCats.includes(category)) {
+            currentGender = 'female';
+        } else {
+            currentGender = null;
+        }
+        currentCategory = category;
+        
         document.getElementById('mainCategories').style.display = 'none';
+        document.getElementById('subcategoriesView').classList.remove('active');
         document.getElementById('productGrid').classList.add('active');
         document.getElementById('backBtn').classList.add('active');
-        document.getElementById('headerTitle').textContent = category;
-        currentFilter = category;
-        updateSidebarActive();
+        
+        document.getElementById('headerTitle').textContent = category === 'all' ? 'Все товары' : category;
         renderProducts();
     };
-
-    function updateSidebarActive() {
-        document.querySelectorAll('.sidebar li').forEach(li => {
-            li.classList.remove('active');
-            if (currentFilter === 'all' && li.textContent === 'Все товары') {
-                li.classList.add('active');
-            } else if (li.textContent === currentFilter) {
-                li.classList.add('active');
-            }
-        });
-    }
 
     window.copyId = function(element, id) {
         navigator.clipboard.writeText(id).then(() => {
             element.classList.add('copied');
+            element.textContent = 'Скопировано!';
             setTimeout(() => {
                 element.classList.remove('copied');
+                element.textContent = `Арт: ${id}`;
             }, 800);
         }).catch(err => {
             console.error('Не удалось скопировать: ', err);
@@ -327,20 +424,17 @@
         imgElement.onerror = function() {
             imgElement.src = jpegUrl;
             imgElement.onerror = function() {
-                // Заглушка, если нет ни jpg, ни jpeg
-                imgElement.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="16">Нет фото</text></svg>';
+                imgElement.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 200 200"><rect width="200" height="200" fill="%2327272a"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a1a1aa" font-family="sans-serif" font-size="16">Нет фото</text></svg>';
             };
         };
     };
 
     async function loadProducts() {
         try {
-            // ВНИМАНИЕ: Если твоя коллекция называется не "products", поменяй это слово здесь
-            const querySnapshot = await getDocs(collection(db, "products"));
+            const querySnapshot = await getDocs(collection(db, "products")); // Убедись, что коллекция называется "products"
             allProducts = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                // Берём поле 'id' из данных, либо ID самого документа
                 const productId = data.id || doc.id;
                 allProducts.push({
                     ...data,
@@ -348,10 +442,10 @@
                 });
             });
             document.getElementById('loading').style.display = 'none';
-            renderProducts();
+            // Не рендерим сразу, ждём выбора пользователя
         } catch (error) {
             console.error("Ошибка загрузки: ", error);
-            document.getElementById('loading').textContent = 'Ошибка загрузки. Проверь интернет или название коллекции в Firebase.';
+            document.getElementById('loading').textContent = 'Ошибка загрузки. Проверь название коллекции в Firebase.';
         }
     }
 
@@ -361,17 +455,14 @@
         grid.innerHTML = '';
         grid.appendChild(loadingDiv);
 
-        const maleCats = ['Трусы мужские', 'Майки мужские', 'Пижама мужская', 'Футболки мужская', 'Футболка мужская с длин рукав', 'Толстовка мужская', 'Толстова мужская', 'Штаны мужские', 'Шорты мужские'];
-        const femaleCats = ['Трусы женские', 'Майки женские', 'Сарочка', 'Пижама женские', 'Двойка женская', 'Халаты', 'Туника и платья', 'Рубашка женская', 'Костюм двойка', 'Толстовка женская', 'Штаны женские'];
-
         let filtered = allProducts;
 
-        if (currentFilter === 'male') {
+        if (currentCategory !== 'all') {
+            filtered = allProducts.filter(p => (p['id-name'] || '').trim() === currentCategory);
+        } else if (currentGender === 'male') {
             filtered = allProducts.filter(p => maleCats.includes((p['id-name'] || '').trim()));
-        } else if (currentFilter === 'female') {
+        } else if (currentGender === 'female') {
             filtered = allProducts.filter(p => femaleCats.includes((p['id-name'] || '').trim()));
-        } else if (currentFilter !== 'all') {
-            filtered = allProducts.filter(p => (p['id-name'] || '').trim() === currentFilter);
         }
 
         if (filtered.length === 0) {
@@ -424,7 +515,7 @@
         });
     }
 
-    // Запуск
+    // Запуск загрузки данных при старте
     loadProducts();
 </script>
 
