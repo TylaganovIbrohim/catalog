@@ -7,13 +7,6 @@
     <meta name="description" content="Каталог одежды">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
-    
-    <!-- === ПРЕДЗАГРУЗКА И ПРЕДСОЕДИНЕНИЕ === -->
-    <link rel="preconnect" href="https://ytwvjdefrnddzelhdlts.supabase.co" crossorigin>
-    <link rel="dns-prefetch" href="https://ytwvjdefrnddzelhdlts.supabase.co">
-    <link rel="preload" as="image" href="https://ytwvjdefrnddzelhdlts.supabase.co/storage/v1/object/public/product-images/images/men.png" imagesrcset="https://ytwvjdefrnddzelhdlts.supabase.co/storage/v1/object/public/product-images/images/men.png?width=400 400w" imagesizes="100vw">
-    <link rel="preload" as="image" href="https://ytwvjdefrnddzelhdlts.supabase.co/storage/v1/object/public/product-images/images/women.png" imagesrcset="https://ytwvjdefrnddzelhdlts.supabase.co/storage/v1/object/public/product-images/images/women.png?width=400 400w" imagesizes="100vw">
-    
     <style>
         :root{--bg:#0f0f0f;--card:#1a1a1a;--primary:#f97316;--text:#f8fafc;--text-light:#a1a1aa;--success:#4ade80;--border:#27272a}
         *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -68,7 +61,7 @@
         .product-grid{display:none;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px}
         .product-grid.active{display:grid}
         .product-card{background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--border);display:flex;flex-direction:column;content-visibility:auto;contain-intrinsic-size:0 300px;animation:fadeInUp .4s cubic-bezier(.16,1,.3,1) forwards;opacity:0}
-        .product-image{width:100%;aspect-ratio:3/4;object-fit:cover;background:#27272a;image-rendering: -webkit-optimize-contrast}
+        .product-image{width:100%;aspect-ratio:3/4;object-fit:cover;background:#27272a}
         .product-info{padding:12px;flex-grow:1;display:flex;flex-direction:column;gap:8px}
         .product-id{font-size:15px;font-weight:800;color:var(--primary);cursor:pointer;padding:8px;border-radius:8px;background:rgba(249,115,22,.1);text-align:center;transition:all .3s;user-select:none;border:1px solid rgba(249,115,22,.3)}
         .product-id.copied{background:var(--success);color:#0f0f0f;border-color:var(--success);animation:blinkGreen .4s ease-in-out 2}
@@ -125,11 +118,11 @@
 
 <div class="main-categories" id="mainCategories">
     <div class="category-card" onclick="selectMainCategory('male')">
-        <img src="" class="category-bg-img" alt="Мужское" id="catMale" fetchpriority="high">
+        <img src="" class="category-bg-img" alt="Мужское" id="catMale" loading="lazy">
         <span class="category-text">МУЖСКОЕ</span>
     </div>
     <div class="category-card" onclick="selectMainCategory('female')">
-        <img src="" class="category-bg-img" alt="Женское" id="catFemale" fetchpriority="high">
+        <img src="" class="category-bg-img" alt="Женское" id="catFemale" loading="lazy">
         <span class="category-text">ЖЕНСКОЕ</span>
     </div>
 </div>
@@ -153,51 +146,16 @@
     // === SUPABASE ===
     const SUPABASE_URL='https://ytwvjdefrnddzelhdlts.supabase.co',SUPABASE_KEY='sb_publishable__LWHCZ29frHTAKQI3F2AFw_EZx_VIOD',BUCKET_NAME='product-images';
     const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-    const SUPABASE_STORAGE_URL=`${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}`;
 
     const categories=[{id:'men_underwear',name:'Трусы мужские',gender:'male'},{id:'men_tshirt',name:'Майки мужские',gender:'male'},{id:'men_pajamas',name:'Пижамы мужские',gender:'male'},{id:'men_shirts',name:'Футболки мужские',gender:'male'},{id:'men_long_sleeve',name:'Футболки с длинным рукавом',gender:'male'},{id:'men_sweatshirt',name:'Толстовка мужская',gender:'male'},{id:'men_trousers',name:'Штаны мужские',gender:'male'},{id:'men_shorts',name:'Шорты мужские',gender:'male'},{id:'women_panties',name:'Трусы женские',gender:'female'},{id:'women_tshirts',name:'Майки женские',gender:'female'},{id:'women_tshirt',name:'Женские футболки',gender:'female'},{id:'sarah',name:'Сарочка',gender:'female'},{id:'women_pajamas',name:'Пижама женские',gender:'female'},{id:'robes',name:'Халаты',gender:'female'},{id:'tunics_and_dresses',name:'Туника и платья',gender:'female'},{id:'women_deuce',name:'Двойка женская',gender:'female'},{id:'women_trousers',name:'Штаны женские',gender:'female'},{id:'women_shirt',name:'Рубашка женская',gender:'female'},{id:'wwo_piece_suit',name:'Костюм двойка',gender:'female'},{id:'women_sweatshirt',name:'Толстовка женская',gender:'female'}];
 
     let allProducts=[],currentGender=null,currentCategoryId='all',currentSortOrder='desc';
 
-    // === ФОТО КАТЕГОРИЙ ИЗ SUPABASE (С КЭШИРОВАНИЕМ) ===
-    function loadCategoryImages(){
-        const maleImg=document.getElementById('catMale');
-        const femaleImg=document.getElementById('catFemale');
-        
-        // Пробуем WebP сначала (быстрее), потом PNG
-        const tryFormats=(img,id)=>{
-            const webpUrl=`${SUPABASE_STORAGE_URL}/images/${id}.webp?width=400`;
-            const pngUrl=`${SUPABASE_STORAGE_URL}/images/${id}.png?width=400`;
-            
-            const testImg=new Image();
-            testImg.onload=()=>{img.src=webpUrl};
-            testImg.onerror=()=>{img.src=pngUrl};
-            testImg.src=webpUrl;
-        };
-        
-        tryFormats(maleImg,'men');
-        tryFormats(femaleImg,'women');
-    }
+    // === ФОТО КАТЕГОРИЙ ИЗ SUPABASE ===
+    function loadCategoryImages(){const{data:d1}=supabase.storage.from(BUCKET_NAME).getPublicUrl('images/men.png');if(d1?.publicUrl)document.getElementById('catMale').src=d1.publicUrl;const{data:d2}=supabase.storage.from(BUCKET_NAME).getPublicUrl('images/women.png');if(d2?.publicUrl)document.getElementById('catFemale').src=d2.publicUrl}
 
-    // === ФОТО ПОДКАТЕГОРИЙ (С КЭШИРОВАНИЕМ И ОПТИМИЗАЦИЕЙ) ===
-    function getSubImg(id){
-        // Пробуем WebP → JPG → PNG с сжатием
-        const webpUrl=`${SUPABASE_STORAGE_URL}/images/${id}.webp?width=160`;
-        const jpgUrl=`${SUPABASE_STORAGE_URL}/images/${id}.jpg?width=160`;
-        const pngUrl=`${SUPABASE_STORAGE_URL}/images/${id}.png?width=160`;
-        
-        return new Promise(resolve=>{
-            const testImg=new Image();
-            testImg.onload=()=>resolve(webpUrl);
-            testImg.onerror=()=>{
-                const testImg2=new Image();
-                testImg2.onload=()=>resolve(jpgUrl);
-                testImg2.onerror=()=>resolve(pngUrl);
-                testImg2.src=jpgUrl;
-            };
-            testImg.src=webpUrl;
-        });
-    }
+    // === ФОТО ПОДКАТЕГОРИЙ ===
+    function getSubImg(id){const{data:d}=supabase.storage.from(BUCKET_NAME).getPublicUrl(`images/${id}.jpg`);if(d?.publicUrl)return d.publicUrl;const{data:d2}=supabase.storage.from(BUCKET_NAME).getPublicUrl(`images/${id}.png`);return d2?.publicUrl||''}
 
     window.toggleAbout=()=>document.getElementById('aboutModal').classList.toggle('active');
     window.toggleSidebar=()=>{document.getElementById('sidebar').classList.toggle('active');document.getElementById('sidebarOverlay').classList.toggle('active')};
@@ -209,47 +167,7 @@
     window.showMainCategories=()=>{currentGender=null;currentCategoryId='all';document.getElementById('mainCategories').style.display='flex';document.getElementById('subcategoriesView').classList.remove('active');document.getElementById('productGrid').classList.remove('active');document.getElementById('backBtn').classList.remove('active');document.getElementById('headerTitle').textContent='Каталог'};
     window.selectMainCategory=g=>{currentGender=g;currentCategoryId=g==='male'?'male_all':'female_all';document.getElementById('mainCategories').style.display='none';document.getElementById('productGrid').classList.remove('active');document.getElementById('subcategoriesView').classList.add('active');document.getElementById('backBtn').classList.add('active');document.getElementById('headerTitle').textContent=g==='male'?'Мужские категории':'Женские категории';renderSubcategories(g)};
 
-    async function renderSubcategories(gender){
-        const grid=document.getElementById('subcategoriesGrid');
-        grid.innerHTML='';
-        const cats=categories.filter(c=>c.gender===gender);
-        
-        const allCard=document.createElement('div');
-        allCard.className='subcategory-card all';
-        allCard.innerHTML=`<div class="subcategory-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;">🔥</div><div class="subcategory-text">Все товары</div>`;
-        allCard.onclick=()=>selectSubcategory(gender==='male'?'male_all':'female_all');
-        grid.appendChild(allCard);
-
-        // Параллельная загрузка всех фото подкатегорий
-        const loadPromises=cats.map(async(cat,index)=>{
-            const card=document.createElement('div');
-            card.className='subcategory-card';
-            card.style.animationDelay=`${index*.05}s`;
-            
-            const img=document.createElement('img');
-            img.className='subcategory-img';
-            img.loading='lazy';
-            img.decoding='async';
-            
-            try{
-                const url=await getSubImg(cat.id);
-                img.src=url;
-            }catch(e){
-                img.src=`data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#27272a"/><text x="50%" y="50%" fill="#a1a1aa" text-anchor="middle" font-size="24">👕</text></svg>`)}`;
-            }
-            
-            const text=document.createElement('div');
-            text.className='subcategory-text';
-            text.textContent=cat.name;
-            card.appendChild(img);
-            card.appendChild(text);
-            card.onclick=()=>selectSubcategory(cat.id);
-            return card;
-        });
-
-        const cards=await Promise.all(loadPromises);
-        cards.forEach(card=>grid.appendChild(card));
-    }
+    function renderSubcategories(gender){const grid=document.getElementById('subcategoriesGrid');grid.innerHTML='';const cats=categories.filter(c=>c.gender===gender);const allCard=document.createElement('div');allCard.className='subcategory-card all';allCard.innerHTML=`<div class="subcategory-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;">🔥</div><div class="subcategory-text">Все товары</div>`;allCard.onclick=()=>selectSubcategory(gender==='male'?'male_all':'female_all');grid.appendChild(allCard);cats.forEach(cat=>{const card=document.createElement('div');card.className='subcategory-card';const img=document.createElement('img');img.className='subcategory-img';img.loading='lazy';const url=getSubImg(cat.id);img.src=url||`data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#27272a"/><text x="50%" y="50%" fill="#a1a1aa" text-anchor="middle" font-size="24">👕</text></svg>`)}`;const text=document.createElement('div');text.className='subcategory-text';text.textContent=cat.name;card.appendChild(img);card.appendChild(text);card.onclick=()=>selectSubcategory(cat.id);grid.appendChild(card)})}
 
     window.selectSubcategory=categoryId=>{currentCategoryId=categoryId;document.getElementById('subcategoriesView').classList.remove('active');document.getElementById('productGrid').classList.add('active');let title='Товары';if(categoryId==='male_all')title='Все мужские';else if(categoryId==='female_all')title='Все женские';else{const cat=categories.find(c=>c.id===categoryId);if(cat)title=cat.name}document.getElementById('headerTitle').textContent=title;renderProducts()};
     window.goBack=()=>{if(currentCategoryId!=='male_all'&&currentCategoryId!=='female_all'&&currentCategoryId!=='all'){if(currentGender)selectMainCategory(currentGender);else showMainCategories()}else showMainCategories()};
@@ -257,47 +175,14 @@
 
     window.copyId=(element,id)=>{navigator.clipboard.writeText(id).then(()=>{element.classList.add('copied');element.textContent='Скопировано!';setTimeout(()=>{element.classList.remove('copied');element.textContent=`Арт: ${id}`},800)})};
 
-    // === СУПЕР-БЫСТРАЯ ЗАГРУЗКА ФОТО ТОВАРА ===
-    window.setProductImage=(imgElement,productId)=>{
-        if(!productId)return;
-        const cid=String(productId).trim();
-        
-        // Приоритет: WebP (быстрее) → JPG → JPEG
-        // Используем сжатие width=300 для ускорения
-        const tryProductImage=async()=>{
-            const formats=['webp','jpg','jpeg'];
-            
-            for(const fmt of formats){
-                try{
-                    const url=`${SUPABASE_STORAGE_URL}/images/${cid}.${fmt}?width=300`;
-                    await new Promise((resolve,reject)=>{
-                        const testImg=new Image();
-                        testImg.onload=()=>{imgElement.src=url;resolve()};
-                        testImg.onerror=reject;
-                        testImg.src=url;
-                    });
-                    return; // Успешно загрузили
-                }catch(e){
-                    continue; // Пробуем следующий формат
-                }
-            }
-            // Если ничего не загрузилось — показываем заглушку
-            showPlaceholder(imgElement,cid);
-        };
-        
-        // Запускаем асинхронно без блокировки
-        requestIdleCallback?requestIdleCallback(tryProductImage):setTimeout(tryProductImage,0);
-    };
-    
-    function showPlaceholder(img,cid){
-        img.src=`data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#27272a" width="200" height="200"/><text x="50%" y="45%" fill="#ef4444" text-anchor="middle" font-size="14" font-weight="bold">НЕТ ФОТО</text><text x="50%" y="60%" fill="#f97316" text-anchor="middle" font-size="16" font-weight="bold">ID: ${cid}</text><text x="50%" y="75%" fill="#a1a1aa" text-anchor="middle" font-size="10">Загрузите фото</text></svg>`)}`
-    }
+    // === ФОТО ТОВАРА ИЗ SUPABASE ===
+    window.setProductImage=(imgElement,productId)=>{if(!productId)return;const cid=String(productId).trim();const{data:d}=supabase.storage.from(BUCKET_NAME).getPublicUrl(`images/${cid}.jpg`);const jpgUrl=d?.publicUrl;if(!jpgUrl){showPlaceholder(imgElement,cid);return}imgElement.src=`${jpgUrl}?t=${Date.now()}`;imgElement.onerror=function(){const{data:d2}=supabase.storage.from(BUCKET_NAME).getPublicUrl(`images/${cid}.jpeg`);if(d2?.publicUrl){imgElement.src=`${d2.publicUrl}?t=${Date.now()}`;imgElement.onerror=function(){showPlaceholder(imgElement,cid)}}else showPlaceholder(imgElement,cid)}};
+    function showPlaceholder(img,cid){img.src=`data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#27272a" width="200" height="200"/><text x="50%" y="45%" fill="#ef4444" text-anchor="middle" font-size="14" font-weight="bold">НЕТ ФОТО</text><text x="50%" y="60%" fill="#f97316" text-anchor="middle" font-size="16" font-weight="bold">ID: ${cid}</text><text x="50%" y="75%" fill="#a1a1aa" text-anchor="middle" font-size="10">Загрузите фото</text></svg>`)}`}
 
     async function loadProducts(){try{const qs=await getDocs(collection(db,"products"));allProducts=[];qs.forEach(ds=>{const data=ds.data();allProducts.push({...data,displayId:String(data.id||ds.id).trim()})});document.getElementById('loading').style.display='none';renderProducts()}catch(error){console.error("Ошибка загрузки:",error);document.getElementById('loading').textContent='Ошибка загрузки Firebase'}}
 
-    function renderProducts(){const grid=document.getElementById('productGrid'),loadingDiv=document.getElementById('loading');grid.innerHTML='';grid.appendChild(loadingDiv);let filtered=allProducts.filter(p=>{if(currentCategoryId==='male_all'){const maleIds=categories.filter(c=>c.gender==='male').map(c=>c.id);return maleIds.includes(String(p['id-name']).trim())}else if(currentCategoryId==='female_all'){const femaleIds=categories.filter(c=>c.gender==='female').map(c=>c.id);return femaleIds.includes(String(p['id-name']).trim())}else if(currentCategoryId!=='all'){return String(p['id-name']).trim()===currentCategoryId}return true});filtered.sort((a,b)=>{const pA=parseFloat(String(a.price).replace(/\s/g,'').replace(',','.'))||0;const pB=parseFloat(String(b.price).replace(/\s/g,'').replace(',','.'))||0;return currentSortOrder==='desc'?pB-pA:pA-pB});if(filtered.length===0){grid.innerHTML='<div class="empty-state">В этой категории пока нет товаров</div>';return}const fragment=document.createDocumentFragment();filtered.forEach((product,index)=>{const card=document.createElement('div');card.className='product-card';card.style.animationDelay=`${Math.min(index*.04,.5)}s`;const img=document.createElement('img');img.className='product-image';img.loading='lazy';img.decoding='async';img.alt=product.displayId;const info=document.createElement('div');info.className='product-info';const idDiv=document.createElement('div');idDiv.className='product-id';idDiv.textContent=`Арт: ${product.displayId}`;idDiv.onclick=function(){window.copyId(this,product.displayId)};const priceDiv=document.createElement('div');priceDiv.className='product-price';priceDiv.textContent=`${product.price||'0'} $`;const sizeDiv=document.createElement('div');sizeDiv.className='product-size';sizeDiv.textContent=`Размер: ${product.size||'Не указан'}`;info.appendChild(idDiv);info.appendChild(priceDiv);info.appendChild(sizeDiv);card.appendChild(img);card.appendChild(info);fragment.appendChild(card);window.setProductImage(img,product.displayId)});grid.appendChild(fragment)}
+    function renderProducts(){const grid=document.getElementById('productGrid'),loadingDiv=document.getElementById('loading');grid.innerHTML='';grid.appendChild(loadingDiv);let filtered=allProducts.filter(p=>{if(currentCategoryId==='male_all'){const maleIds=categories.filter(c=>c.gender==='male').map(c=>c.id);return maleIds.includes(String(p['id-name']).trim())}else if(currentCategoryId==='female_all'){const femaleIds=categories.filter(c=>c.gender==='female').map(c=>c.id);return femaleIds.includes(String(p['id-name']).trim())}else if(currentCategoryId!=='all'){return String(p['id-name']).trim()===currentCategoryId}return true});filtered.sort((a,b)=>{const pA=parseFloat(String(a.price).replace(/\s/g,'').replace(',','.'))||0;const pB=parseFloat(String(b.price).replace(/\s/g,'').replace(',','.'))||0;return currentSortOrder==='desc'?pB-pA:pA-pB});if(filtered.length===0){grid.innerHTML='<div class="empty-state">В этой категории пока нет товаров</div>';return}const fragment=document.createDocumentFragment();filtered.forEach((product,index)=>{const card=document.createElement('div');card.className='product-card';card.style.animationDelay=`${Math.min(index*.04,.5)}s`;const img=document.createElement('img');img.className='product-image';img.loading='lazy';img.alt=product.displayId;const info=document.createElement('div');info.className='product-info';const idDiv=document.createElement('div');idDiv.className='product-id';idDiv.textContent=`Арт: ${product.displayId}`;idDiv.onclick=function(){window.copyId(this,product.displayId)};const priceDiv=document.createElement('div');priceDiv.className='product-price';priceDiv.textContent=`${product.price||'0'} $`;const sizeDiv=document.createElement('div');sizeDiv.className='product-size';sizeDiv.textContent=`Размер: ${product.size||'Не указан'}`;info.appendChild(idDiv);info.appendChild(priceDiv);info.appendChild(sizeDiv);card.appendChild(img);card.appendChild(info);fragment.appendChild(card);window.setProductImage(img,product.displayId)});grid.appendChild(fragment)}
 
-    // Загружаем категории сразу
     loadCategoryImages();
     initSidebar();
     loadProducts();
