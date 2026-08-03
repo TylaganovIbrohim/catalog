@@ -27,16 +27,16 @@
             z-index: 50;
             border-bottom: 1px solid var(--border);
             display: grid;
-            grid-template-columns: 80px 1fr 80px;
+            grid-template-columns: 80px 1fr 100px;
             align-items: center;
         }
         .header-left { display: flex; gap: 8px; align-items: center; }
         .header-title { font-size: 18px; font-weight: 700; color: var(--primary); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .header-right { display: flex; justify-content: flex-end; align-items: center; }
+        .header-right { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
 
         .menu-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 4px; color: var(--text); }
         .back-btn {
-            visibility: hidden; /* Скрыта, но занимает место для идеального центрирования заголовка */
+            visibility: hidden;
             font-size: 20px; background: none; border: none; color: var(--primary);
             cursor: pointer; padding: 4px; font-weight: 700;
         }
@@ -49,6 +49,25 @@
             transition: all 0.2s;
         }
         .info-btn:active { background: var(--primary); color: white; transform: scale(0.9); }
+
+        /* Меню сортировки */
+        .sort-menu {
+            position: fixed; top: 65px; right: 16px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 8px; z-index: 150;
+            display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            min-width: 180px; animation: slideDown 0.2s ease-out;
+        }
+        .sort-menu.active { display: block; }
+        .sort-option {
+            padding: 12px 16px; cursor: pointer; border-radius: 8px;
+            font-size: 14px; font-weight: 600; color: var(--text);
+            transition: all 0.2s; display: flex; align-items: center; justify-content: space-between;
+        }
+        .sort-option:hover { background: rgba(249, 115, 22, 0.1); }
+        .sort-option.active { color: var(--primary); background: rgba(249, 115, 22, 0.15); }
+        .sort-option.active::after { content: '✓'; font-weight: 900; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Модальное окно "О нас" */
         .modal-overlay {
@@ -209,9 +228,18 @@
     </div>
     <span class="header-title" id="headerTitle">Каталог</span>
     <div class="header-right">
-        <button class="info-btn" onclick="toggleAbout()">i</button>
+        <!-- Кнопка сортировки -->
+        <button class="info-btn" onclick="toggleSortMenu()" title="Сортировка по цене">⇅</button>
+        <!-- Кнопка "О нас" -->
+        <button class="info-btn" onclick="toggleAbout()" title="О нас">i</button>
     </div>
 </header>
+
+<!-- Меню сортировки -->
+<div class="sort-menu" id="sortMenu">
+    <div class="sort-option active" data-order="desc" onclick="setSortOrder('desc')">Сначала дорогие</div>
+    <div class="sort-option" data-order="asc" onclick="setSortOrder('asc')">Сначала дешевые</div>
+</div>
 
 <!-- Модальное окно "О нас" -->
 <div class="modal-overlay" id="aboutModal" onclick="toggleAbout()">
@@ -304,6 +332,7 @@
     let allProducts = [];
     let currentGender = null;
     let currentCategoryId = 'all';
+    let currentSortOrder = 'desc'; // По умолчанию: от дорогого к дешевому
 
     function initSidebar() {
         const maleList = document.getElementById('sidebarMale');
@@ -325,6 +354,22 @@
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('sidebarOverlay').classList.toggle('active');
     };
+
+    // === НОВЫЕ ФУНКЦИИ ДЛЯ СОРТИРОВКИ ===
+    window.toggleSortMenu = function() {
+        document.getElementById('sortMenu').classList.toggle('active');
+    };
+
+    window.setSortOrder = function(order) {
+        currentSortOrder = order;
+        // Обновляем визуальный стиль активного пункта
+        document.querySelectorAll('.sort-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.order === order);
+        });
+        renderProducts(); // Перерисовываем товары с новой сортировкой
+        toggleSortMenu(); // Закрываем меню
+    };
+    // ====================================
 
     window.showMainCategories = function() {
         currentGender = null; currentCategoryId = 'all';
@@ -468,6 +513,7 @@
                 allProducts.push({ ...data, displayId: String(data.id || doc.id).trim() });
             });
             document.getElementById('loading').style.display = 'none';
+            renderProducts(); // Рендерим сразу после загрузки
         } catch (error) {
             console.error("Ошибка загрузки: ", error);
             document.getElementById('loading').textContent = 'Ошибка загрузки Firebase';
@@ -480,16 +526,30 @@
         grid.innerHTML = '';
         grid.appendChild(loadingDiv);
 
-        let filtered = allProducts;
-        if (currentCategoryId === 'male_all') {
-            const maleIds = categories.filter(c => c.gender === 'male').map(c => c.id);
-            filtered = allProducts.filter(p => maleIds.includes(String(p['id-name']).trim()));
-        } else if (currentCategoryId === 'female_all') {
-            const femaleIds = categories.filter(c => c.gender === 'female').map(c => c.id);
-            filtered = allProducts.filter(p => femaleIds.includes(String(p['id-name']).trim()));
-        } else if (currentCategoryId !== 'all') {
-            filtered = allProducts.filter(p => String(p['id-name']).trim() === currentCategoryId);
-        }
+        let filtered = allProducts.filter(p => {
+            if (currentCategoryId === 'male_all') {
+                const maleIds = categories.filter(c => c.gender === 'male').map(c => c.id);
+                return maleIds.includes(String(p['id-name']).trim());
+            } else if (currentCategoryId === 'female_all') {
+                const femaleIds = categories.filter(c => c.gender === 'female').map(c => c.id);
+                return femaleIds.includes(String(p['id-name']).trim());
+            } else if (currentCategoryId !== 'all') {
+                return String(p['id-name']).trim() === currentCategoryId;
+            }
+            return true;
+        });
+
+        // === ЛОГИКА СОРТИРОВКИ ПО ЦЕНЕ ===
+        filtered.sort((a, b) => {
+            // Безопасно извлекаем число из цены (убираем пробелы, заменяем запятую на точку)
+            const priceA = parseFloat(String(a.price).replace(/\s/g, '').replace(',', '.')) || 0;
+            const priceB = parseFloat(String(b.price).replace(/\s/g, '').replace(',', '.')) || 0;
+            
+            // Если 'desc' (по умолчанию), то дорогие впереди (priceB - priceA)
+            // Если 'asc', то дешевые впереди (priceA - priceB)
+            return currentSortOrder === 'desc' ? priceB - priceA : priceA - priceB;
+        });
+        // ==================================
 
         if (filtered.length === 0) {
             grid.innerHTML += '<div class="empty-state">В этой категории пока нет товаров</div>';
